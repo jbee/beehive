@@ -1,5 +1,7 @@
 package de.jbee.io.json.parse;
 
+import de.jbee.io.Gobble;
+import de.jbee.io.ICharProcessor;
 import de.jbee.io.ICharReader;
 import de.jbee.io.json.IJsonProcessor;
 import de.jbee.io.json.JsonType;
@@ -16,7 +18,17 @@ public final class JsonParser {
 	}
 
 	public void parse( IJsonProcessor out ) {
-		gobbleWhitespace();
+		in( Gobble.whitespace() );
+		parseValue( out );
+	}
+
+	private void in( ICharProcessor... processors ) {
+		for ( ICharProcessor p : processors ) {
+			p.process( in );
+		}
+	}
+
+	private void parseValue( IJsonProcessor out ) {
 		parseValue( (String) null, out );
 	}
 
@@ -43,8 +55,7 @@ public final class JsonParser {
 	}
 
 	private void parseObject( IJsonProcessor out ) {
-		gobble1(); // '{'
-		gobbleWhitespace();
+		in( Gobble.aWhitespaced( '{' ) );
 		parseMembers( out );
 	}
 
@@ -78,15 +89,14 @@ public final class JsonParser {
 
 	private void parseArray( IJsonProcessor out ) {
 		gobble1(); // '['
-		parseElement( 0, out );
+		parseElement( out );
 		gobble1(); // ']'
 	}
 
-	private void parseElement( int index, IJsonProcessor out ) {
-		gobbleWhitespace();
-		parseValue( JsonType.valueOf( in.peek() ), out );
+	private void parseElement( IJsonProcessor out ) {
+		parseValue( out );
 		if ( in.next() == ',' ) {
-			parseElement( ++index, out );
+			parseElement( out );
 		}
 	}
 
