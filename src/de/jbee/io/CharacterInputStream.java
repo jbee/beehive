@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.io.Reader;
 
 public class CharacterInputStream
-		implements IInputStream<Character> {
+		implements IInputStream<Character>, ICharReader {
 
 	private final Reader reader;
 

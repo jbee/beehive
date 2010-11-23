@@ -40,4 +40,8 @@ public enum JsonType {
 				throw new InputMismatchException( "Unexspected token: " + firstOfValue );
 		}
 	}
+
+	public boolean isComposite() {
+		return this == OBJECT || this == ARRAY;
+	}
 }

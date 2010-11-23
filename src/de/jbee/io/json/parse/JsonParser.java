@@ -1,38 +1,32 @@
 package de.jbee.io.json.parse;
 
+import de.jbee.io.CharReader;
 import de.jbee.io.Gobble;
-import de.jbee.io.ICharProcessor;
 import de.jbee.io.ICharReader;
+import de.jbee.io.IProcessable;
 import de.jbee.io.json.IJsonProcessor;
 import de.jbee.io.json.JsonType;
 
 public final class JsonParser {
 
-	private static final String NUMBER_TOKEN = "0123456789+-eE";
+	private static final String NUMBER_UNIVERSE = ".0123456789+-eE";
 
-	private final ICharReader in;
+	private final CharReader in;
 
-	private JsonParser( ICharReader in ) {
+	public JsonParser( ICharReader in ) {
 		super();
-		this.in = in;
+		this.in = new CharReader( in );
 	}
 
 	public void parse( IJsonProcessor out ) {
-		in( Gobble.whitespace() );
 		parseValue( out );
-	}
-
-	private void in( ICharProcessor... processors ) {
-		for ( ICharProcessor p : processors ) {
-			p.process( in );
-		}
 	}
 
 	private void parseValue( IJsonProcessor out ) {
 		parseValue( (String) null, out );
 	}
 
-	private void parseValue( JsonType type, IJsonProcessor out ) {
+	void parseValue( JsonType type, IJsonProcessor out ) {
 		switch ( type ) {
 			case OBJECT:
 				parseObject( out );
@@ -55,42 +49,47 @@ public final class JsonParser {
 	}
 
 	private void parseObject( IJsonProcessor out ) {
-		in( Gobble.aWhitespaced( '{' ) );
+		in.once( Gobble.aWhitespaced( '{' ) );
 		parseMembers( out );
 	}
 
 	private void parseMembers( IJsonProcessor out ) {
-		gobbleWhitespace();
 		parseMember( out );
-		gobbleWhitespace();
+		in.once( Gobble.whitespace() );
 		if ( in.next() == ',' ) {
 			parseMembers( out );
 		}
 	}
 
 	private void parseMember( IJsonProcessor out ) {
+		in.once( Gobble.whitespace() );
 		String name = readString();
-		gobbleWhitespace();
-		gobble1(); // ':'
+		in.once( Gobble.aWhitespaced( ':' ) );
 		parseValue( name, out );
 	}
 
 	private void parseValue( String name, IJsonProcessor out ) {
-		gobbleWhitespace();
-		JsonType type = JsonType.valueOf( in.peek() );
-		out = out.begin( type, name );
-		if ( out.skip( type ) ) {
-			gobbleValue( type );
-		} else {
-			parseValue( type, out );
-			out = out.end( type );
-		}
+		in.once( Gobble.whitespace() );
+		final JsonType type = JsonType.valueOf( in.peek() );
+		out.decideOn( type, name, new IProcessable<IJsonProcessor>() {
+
+			@Override
+			public void processBy( IJsonProcessor processor ) {
+				parseValue( type, processor );
+			}
+
+			@Override
+			public void discardBy( IJsonProcessor processor ) {
+				gobbleValue( type );
+			}
+		} );
+		in.once( Gobble.whitespace() );
 	}
 
 	private void parseArray( IJsonProcessor out ) {
-		gobble1(); // '['
+		in.once( Gobble.aWhitespaced( '[' ) );
 		parseElement( out );
-		gobble1(); // ']'
+		in.once( Gobble.aWhitespaced( ']' ) );
 	}
 
 	private void parseElement( IJsonProcessor out ) {
@@ -107,121 +106,47 @@ public final class JsonParser {
 	private void parseNumber( IJsonProcessor out ) {
 		StringBuilder b = new StringBuilder( 10 );
 		b.append( in.next() );
-		while ( in.hasNext() && NUMBER_TOKEN.indexOf( in.peek() ) >= 0 ) {
+		while ( in.hasNext() && NUMBER_UNIVERSE.indexOf( in.peek() ) >= 0 ) {
 			b.append( in.next() );
 		}
 		String value = b.toString();
-		out.visit( value.indexOf( '.' ) >= 0
-			? Double.parseDouble( value )
-			: Long.parseLong( value ) );
+		Number number = value.indexOf( '.' ) >= 0
+			? (Number) Double.valueOf( value )
+			: (Number) Long.valueOf( value );
+		out.visit( number );
 	}
 
 	private void parseBoolean( IJsonProcessor out ) {
 		boolean expectTrue = in.peek() == 't';
-		gobble( expectTrue
+		in.once( Gobble.one( expectTrue
 			? "true"
-			: "false" );
+			: "false" ) );
 		out.visit( expectTrue );
 	}
 
 	private void parseNull( IJsonProcessor out ) {
-		gobble( "null" );
+		in.once( Gobble.one( "null" ) );
 		out.visitNull();
 	}
 
-	private void gobble( String expected ) {
-		for ( char c : expected.toCharArray() ) {
-			ensure( c );
-			gobble1();
-		}
-	}
-
-	private void gobbleNumber() {
-		while ( in.hasNext() && NUMBER_TOKEN.indexOf( in.peek() ) >= 0 ) {
-			in.next();
-		}
-	}
-
-	private void gobbleWhitespace() {
-		while ( in.hasNext() && Character.isWhitespace( in.peek() ) ) {
-			in.next();
-		}
-	}
-
-	private void gobbleValue( JsonType type ) {
+	void gobbleValue( JsonType type ) {
 		switch ( type ) {
 			case ARRAY:
-				gobble1();
-				gobbleSameLevelUntil( ']' );
+				in.once( Gobble.block( "[{", "}]", '"', Gobble.unicode() ) );
 				break;
 			case BOOLEAN:
 			case NULL:
-				gobbleLetters();
+				in.once( Gobble.letters() );
 				break;
 			case NUMBER:
-				gobbleNumber();
+				in.once( Gobble.universe( NUMBER_UNIVERSE ) );
 				break;
 			case STRING:
-				gobbleString();
+				in.once( Gobble.unicode() );
 				break;
 			case OBJECT:
-				gobble1();
-				gobbleSameLevelUntil( '}' );
+				in.once( Gobble.block( "{[", "]}", '"', Gobble.unicode() ) );
 		}
-	}
-
-	private void gobbleSameLevelUntil( char end ) {
-		int objectLevel = 0;
-		int arrayLevel = 0;
-		char c = in.peek();
-		while ( objectLevel > 0 || arrayLevel > 0 || c != end ) {
-			if ( c == '{' ) {
-				++objectLevel;
-			}
-			if ( c == '}' ) {
-				--objectLevel;
-			}
-			if ( c == '[' ) {
-				++arrayLevel;
-			}
-			if ( c == ']' ) {
-				--arrayLevel;
-			}
-			if ( c == '"' ) {
-				gobbleString();
-			}
-			c = in.next();
-		}
-	}
-
-	private void gobble1() {
-		in.next();
-	}
-
-	private void gobble( int n ) {
-		for ( int i = 0; i < n; i++ ) {
-			gobble1();
-		}
-	}
-
-	private void gobbleLetters() {
-		while ( in.hasNext() && Character.isLetter( in.peek() ) ) {
-			in.next();
-		}
-	}
-
-	private void gobbleString() {
-		gobble1(); // opening "
-		while ( in.peek() != '"' ) {
-			char c = in.next();
-			if ( c == '\\' ) {
-				c = in.next(); // gobble the escaped char
-				if ( c == 'u' ) { // if it was u
-					gobble( 4 ); // gobble following 4 digit hex number
-				}
-			}
-		}
-		gobble1(); // closing "
 	}
 
 	private char[] read( int n ) {
@@ -233,8 +158,7 @@ public final class JsonParser {
 	}
 
 	private String readString() {
-		ensure( '"' );
-		gobble1();
+		in.once( Gobble.a( '"' ) );
 		StringBuilder b = new StringBuilder();
 		while ( in.peek() != '"' ) {
 			char c = in.next();
@@ -271,12 +195,8 @@ public final class JsonParser {
 				b.append( c );
 			}
 		}
-		ensure( '"' );
-		gobble1();
+		in.once( Gobble.a( '"' ) );
 		return b.toString();
 	}
 
-	private void ensure( char c ) {
-
-	}
 }

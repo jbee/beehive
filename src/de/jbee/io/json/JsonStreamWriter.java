@@ -1,6 +1,7 @@
 package de.jbee.io.json;
 
 import de.jbee.io.ICharWriter;
+import de.jbee.io.IProcessable;
 
 public class JsonStreamWriter
 		implements IJsonProcessor {
@@ -35,21 +36,8 @@ public class JsonStreamWriter
 	}
 
 	@Override
-	public IJsonProcessor begin( JsonType member, String name ) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public IJsonProcessor end( JsonType element ) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public boolean skip( JsonType element ) {
-		// TODO Auto-generated method stub
-		return false;
+	public void decideOn( JsonType type, String name, IProcessable<IJsonProcessor> element ) {
+		element.processBy( this );
 	}
 
 }

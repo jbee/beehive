@@ -5,7 +5,7 @@ public final class JsonString
 
 	private final String value;
 
-	private JsonString( String value ) {
+	public JsonString( String value ) {
 		super();
 		this.value = value;
 	}
