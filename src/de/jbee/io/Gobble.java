@@ -143,6 +143,24 @@ public final class Gobble {
 		}
 	}
 
+	static final class GobbleMaybeChar
+			implements ICharProcessor {
+
+		private final char optional;
+
+		GobbleMaybeChar( char optional ) {
+			super();
+			this.optional = optional;
+		}
+
+		@Override
+		public void process( ICharReader in ) {
+			if ( in.peek() == optional ) {
+				in.next();
+			}
+		}
+	}
+
 	static final class GobbleAChar
 			extends ExpectingCharProcessor {
 
@@ -183,7 +201,7 @@ public final class Gobble {
 
 		@Override
 		public void process( ICharReader in ) {
-			a( '"' ).process( in );
+			maybe( '"' ).process( in );
 			while ( in.peek() != '"' ) {
 				char c = in.next();
 				if ( c == '\\' ) {
@@ -218,6 +236,7 @@ public final class Gobble {
 		public void process( ICharReader in ) {
 			int level = 0;
 			char c = in.peek();
+			boolean peeked = true;
 			do {
 				if ( escapeingBlockOpener == c ) {
 					escapeingBlockProcessor.process( in );
@@ -227,6 +246,10 @@ public final class Gobble {
 					level--;
 				}
 				if ( level > 0 ) {
+					if ( peeked ) {
+						in.next();
+						peeked = false;
+					}
 					c = in.next();
 				}
 			} while ( level > 0 );
@@ -273,6 +296,10 @@ public final class Gobble {
 
 	public static ICharProcessor all( char optional ) {
 		return new GobbleAll( optional );
+	}
+
+	public static ICharProcessor maybe( char optional ) {
+		return new GobbleMaybeChar( optional );
 	}
 
 	public static ICharProcessor universe( String universe ) {
