@@ -201,7 +201,7 @@ public final class Gobble {
 
 		@Override
 		public void process( ICharReader in ) {
-			maybe( '"' ).process( in );
+			a( '"' ).process( in );
 			while ( in.peek() != '"' ) {
 				char c = in.next();
 				if ( c == '\\' ) {
@@ -235,22 +235,20 @@ public final class Gobble {
 		@Override
 		public void process( ICharReader in ) {
 			int level = 0;
-			char c = in.peek();
-			boolean peeked = true;
 			do {
-				if ( escapeingBlockOpener == c ) {
+				char c = in.peek();
+				if ( level > 0 && escapeingBlockOpener == c ) {
 					escapeingBlockProcessor.process( in );
 				} else if ( openUniverse.indexOf( c ) >= 0 ) {
 					level++;
+					in.next();
 				} else if ( closeUniverse.indexOf( c ) >= 0 ) {
 					level--;
-				}
-				if ( level > 0 ) {
-					if ( peeked ) {
+					in.next();
+				} else {
+					if ( level > 0 ) {
 						in.next();
-						peeked = false;
 					}
-					c = in.next();
 				}
 			} while ( level > 0 );
 		}

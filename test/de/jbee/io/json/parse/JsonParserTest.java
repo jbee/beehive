@@ -24,7 +24,7 @@ public class JsonParserTest {
 
 			@Override
 			public boolean selects( PropertyPath path ) {
-				return !path.isSubElementOf( PropertyPath.of( "glossary.GlossDiv.GlossList.GlossEntry.GlossDef" ) );
+				return !path.isSubElementOf( PropertyPath.of( "web-app.servlet.init-param" ) );
 			}
 		} ) );
 		IJsonValue value = treeBuilder.build();

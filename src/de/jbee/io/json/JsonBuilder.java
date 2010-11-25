@@ -95,6 +95,16 @@ public abstract class JsonBuilder
 				: new JsonObjectBuilder();
 	}
 
+	/**
+	 * Necessary because we cannot know what type of json will be processed first later when a fresh
+	 * builder is used. Therefore this builder delays creation of real root until we get to know by
+	 * call to {@link #process(JsonType, String, IProcessable)}. This is transparent to the user.
+	 * 
+	 * In fact the {@linkplain RootJsonBuilder} can be used multiple times in sequence for different
+	 * json values.
+	 * 
+	 * @author Jan Bernitt (jan.bernitt@gmx.de)
+	 */
 	static final class RootJsonBuilder
 			extends JsonBuilder {
 
