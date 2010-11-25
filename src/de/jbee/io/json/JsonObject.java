@@ -25,13 +25,17 @@ public final class JsonObject
 
 	private final JsonMember[] members;
 
-	public JsonObject( Map<String, IJsonValue> values ) {
-		super();
-		this.members = new JsonMember[values.size()];
+	public JsonObject( JsonMember[] members ) {
+		this.members = members;
+	}
+
+	public static JsonObject of( Map<String, IJsonValue> values ) {
+		JsonMember[] members = new JsonMember[values.size()];
 		int i = 0;
 		for ( Entry<String, IJsonValue> e : values.entrySet() ) {
 			members[i++] = new JsonMember( e.getKey(), e.getValue() );
 		}
+		return new JsonObject( members );
 	}
 
 	@Override

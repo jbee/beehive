@@ -1,11 +1,10 @@
 package de.jbee.io.json;
 
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 import de.jbee.io.IProcessable;
+import de.jbee.io.json.JsonObject.JsonMember;
 
 public abstract class JsonBuilder
 		implements IJsonProcessor {
@@ -72,18 +71,18 @@ public abstract class JsonBuilder
 	static final class JsonObjectBuilder
 			extends JsonBuilder {
 
-		private final Map<String, IJsonValue> members = new HashMap<String, IJsonValue>();
+		private final List<JsonMember> members = new LinkedList<JsonMember>();
 
 		@Override
 		public void process( JsonType type, String name, IProcessable<IJsonProcessor> element ) {
 			JsonBuilder builder = forType( type );
 			element.processBy( builder );
-			members.put( name, builder.build() );
+			members.add( new JsonMember( name, builder.build() ) );
 		}
 
 		@Override
 		public IJsonValue build() {
-			return new JsonObject( members );
+			return new JsonObject( members.toArray( new JsonMember[members.size()] ) );
 		}
 
 	}
