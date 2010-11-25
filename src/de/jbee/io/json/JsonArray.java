@@ -1,5 +1,7 @@
 package de.jbee.io.json;
 
+import java.util.Arrays;
+
 public final class JsonArray
 		implements IJsonValue {
 
@@ -20,5 +22,10 @@ public final class JsonArray
 		for ( int i = 0; i < elements.length; i++ ) {
 			visitor.visitElement( i, elements[i] );
 		}
+	}
+
+	@Override
+	public String toString() {
+		return Arrays.toString( elements );
 	}
 }

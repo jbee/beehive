@@ -5,6 +5,6 @@ import de.jbee.io.IProcessable;
 public interface IJsonProcessor
 		extends IJsonVisitor {
 
-	void decideOn( JsonType type, String name, IProcessable<IJsonProcessor> element );
+	void process( JsonType type, String name, IProcessable<IJsonProcessor> element );
 
 }

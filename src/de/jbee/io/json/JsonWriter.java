@@ -3,12 +3,12 @@ package de.jbee.io.json;
 import de.jbee.io.ICharWriter;
 import de.jbee.io.IProcessable;
 
-public class JsonStreamWriter
+public class JsonWriter
 		implements IJsonProcessor {
 
 	private final ICharWriter out;
 
-	public JsonStreamWriter( ICharWriter out ) {
+	public JsonWriter( ICharWriter out ) {
 		super();
 		this.out = out;
 	}
@@ -36,7 +36,7 @@ public class JsonStreamWriter
 	}
 
 	@Override
-	public void decideOn( JsonType type, String name, IProcessable<IJsonProcessor> element ) {
+	public void process( JsonType type, String name, IProcessable<IJsonProcessor> element ) {
 		element.processBy( this );
 	}
 

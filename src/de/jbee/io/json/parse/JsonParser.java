@@ -1,11 +1,13 @@
 package de.jbee.io.json.parse;
 
+
 import de.jbee.io.CharReader;
 import de.jbee.io.Gobble;
 import de.jbee.io.ICharReader;
 import de.jbee.io.IProcessable;
 import de.jbee.io.json.IJsonProcessor;
 import de.jbee.io.json.JsonType;
+import de.jbee.io.json.JsonValue;
 
 public final class JsonParser {
 
@@ -51,12 +53,14 @@ public final class JsonParser {
 	private void parseObject( IJsonProcessor out ) {
 		in.once( Gobble.aWhitespaced( '{' ) );
 		parseMembers( out );
+		in.once( Gobble.aWhitespaced( '}' ) );
 	}
 
 	private void parseMembers( IJsonProcessor out ) {
 		parseMember( out );
 		in.once( Gobble.whitespace() );
-		if ( in.next() == ',' ) {
+		if ( in.peek() == ',' ) {
+			in.once( Gobble.a( ',' ) );
 			parseMembers( out );
 		}
 	}
@@ -71,7 +75,7 @@ public final class JsonParser {
 	private void parseValue( String name, IJsonProcessor out ) {
 		in.once( Gobble.whitespace() );
 		final JsonType type = JsonType.valueOf( in.peek() );
-		out.decideOn( type, name, new IProcessable<IJsonProcessor>() {
+		out.process( type, name, new IProcessable<IJsonProcessor>() {
 
 			@Override
 			public void processBy( IJsonProcessor processor ) {
@@ -94,7 +98,8 @@ public final class JsonParser {
 
 	private void parseElement( IJsonProcessor out ) {
 		parseValue( out );
-		if ( in.next() == ',' ) {
+		if ( in.peek() == ',' ) {
+			in.once( Gobble.a( ',' ) );
 			parseElement( out );
 		}
 	}
@@ -109,11 +114,7 @@ public final class JsonParser {
 		while ( in.hasNext() && NUMBER_UNIVERSE.indexOf( in.peek() ) >= 0 ) {
 			b.append( in.next() );
 		}
-		String value = b.toString();
-		Number number = value.indexOf( '.' ) >= 0
-			? (Number) Double.valueOf( value )
-			: (Number) Long.valueOf( value );
-		out.visit( number );
+		out.visit( JsonValue.number( b.toString() ) );
 	}
 
 	private void parseBoolean( IJsonProcessor out ) {

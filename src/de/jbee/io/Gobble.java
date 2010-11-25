@@ -1,11 +1,19 @@
 package de.jbee.io;
 
-import java.util.InputMismatchException;
 import java.util.regex.Pattern;
 
+import de.jbee.io.CharProcessor.ExpectingCharProcessor;
+
+/**
+ * 
+ * @author Jan Bernitt (jan.bernitt@gmx.de)
+ * 
+ * @see ICharProcessor
+ * @see CharProcessor
+ */
 public final class Gobble {
 
-	private static final ICharProcessor NOTHING = new NullCharProcessor();
+	private static final ICharProcessor NOTHING = CharProcessor.NULL_OBJECT;
 	private static final ICharProcessor NEXT_1 = new GobbleN( 1 );
 	private static final ICharProcessor WHITESPACE = new GobbleWhitespace();
 	private static final ICharProcessor LETTERS = new GobbleLetters();
@@ -105,25 +113,6 @@ public final class Gobble {
 		}
 	}
 
-	static final class CombinedCharProcesspr
-			implements ICharProcessor {
-
-		final ICharProcessor first;
-		final ICharProcessor second;
-
-		CombinedCharProcesspr( ICharProcessor first, ICharProcessor second ) {
-			super();
-			this.first = first;
-			this.second = second;
-		}
-
-		@Override
-		public void process( ICharReader in ) {
-			first.process( in );
-			second.process( in );
-		}
-	}
-
 	static final class GobbleN
 			implements ICharProcessor {
 
@@ -139,15 +128,6 @@ public final class Gobble {
 			for ( int i = 0; i < n; i++ ) {
 				in.next();
 			}
-		}
-	}
-
-	static final class NullCharProcessor
-			implements ICharProcessor {
-
-		@Override
-		public void process( ICharReader in ) {
-			// do nothing
 		}
 	}
 
@@ -196,25 +176,6 @@ public final class Gobble {
 			}
 		}
 
-	}
-
-	static abstract class ExpectingCharProcessor
-			implements ICharProcessor {
-
-		protected final void mismatch( String message )
-				throws InputMismatchException {
-			throw new InputMismatchException( message );
-		}
-
-		protected final void expect( ICharReader in, char expected ) {
-			if ( !in.hasNext() ) {
-				mismatch( "Needed '" + expected + "' but no further token available!" );
-			}
-			char next = in.next();
-			if ( next != expected ) {
-				mismatch( "Expeceted '" + expected + "' but found: '" + next + "'" );
-			}
-		}
 	}
 
 	static final class GobbleEscapedUnicodeString
@@ -272,14 +233,6 @@ public final class Gobble {
 		}
 	}
 
-	public static ICharProcessor combine( ICharProcessor first, ICharProcessor second ) {
-		return first == NOTHING
-			? second
-			: second == NOTHING
-				? first
-				: new CombinedCharProcesspr( first, second );
-	}
-
 	public static ICharProcessor next( int n ) {
 		return n <= 0
 			? NOTHING
@@ -303,7 +256,7 @@ public final class Gobble {
 	public static ICharProcessor whitespaced( ICharProcessor inner ) {
 		return inner == NOTHING
 			? WHITESPACE
-			: combine( combine( WHITESPACE, inner ), WHITESPACE );
+			: CharProcessor.combine( CharProcessor.combine( WHITESPACE, inner ), WHITESPACE );
 	}
 
 	public static ICharProcessor aWhitespaced( char mandatory ) {
