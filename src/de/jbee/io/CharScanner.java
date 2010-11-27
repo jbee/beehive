@@ -7,7 +7,7 @@ public final class CharScanner {
 	}
 
 	static final class ProcessorAdapter
-			implements ICharScanner {
+			implements ICharScanner<ICharWriter> {
 
 		private final ICharProcessor processor;
 

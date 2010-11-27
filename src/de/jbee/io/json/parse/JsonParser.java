@@ -3,13 +3,15 @@ package de.jbee.io.json.parse;
 import de.jbee.io.CharReader;
 import de.jbee.io.Gobble;
 import de.jbee.io.ICharReader;
+import de.jbee.io.ICharScanner;
 import de.jbee.io.IProcessable;
 import de.jbee.io.Read;
 import de.jbee.io.json.IJsonProcessor;
 import de.jbee.io.json.JsonType;
 import de.jbee.io.json.JsonValue;
 
-public final class JsonParser {
+public final class JsonParser
+		implements ICharScanner<IJsonProcessor> {
 
 	private static final String NUMBER_UNIVERSE = ".0123456789+-eE";
 
@@ -18,6 +20,12 @@ public final class JsonParser {
 	public JsonParser( ICharReader in ) {
 		super();
 		this.in = new CharReader( in );
+	}
+
+	@Override
+	public void scan( ICharReader in, IJsonProcessor out ) {
+		// TODO Auto-generated method stub
+
 	}
 
 	public void parse( IJsonProcessor out ) {

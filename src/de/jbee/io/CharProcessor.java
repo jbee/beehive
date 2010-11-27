@@ -36,13 +36,13 @@ public final class CharProcessor {
 		}
 	}
 
-	static final class CharScannerAdapter
+	static final class CharScannerAdapter<T>
 			implements ICharProcessor {
 
-		final ICharScanner scanner;
-		final ICharWriter out;
+		final ICharScanner<T> scanner;
+		final T out;
 
-		CharScannerAdapter( ICharScanner scanner, ICharWriter out ) {
+		CharScannerAdapter( ICharScanner<T> scanner, T out ) {
 			super();
 			this.scanner = scanner;
 			this.out = out;
@@ -116,7 +116,7 @@ public final class CharProcessor {
 				: new CombinedCharProcesspr( first, second );
 	}
 
-	public static ICharProcessor of( ICharScanner scanner, ICharWriter out ) {
-		return new CharScannerAdapter( scanner, out );
+	public static <T> ICharProcessor of( ICharScanner<T> scanner, T out ) {
+		return new CharScannerAdapter<T>( scanner, out );
 	}
 }

@@ -8,10 +8,10 @@ public final class Read {
 		// util
 	}
 
-	static final ICharScanner DIGITS = new ReadDigits();
+	static final ICharScanner<ICharWriter> DIGITS = new ReadDigits();
 
 	static final class ReadUniverse
-			implements ICharScanner {
+			implements ICharScanner<ICharWriter> {
 
 		private final String universe;
 
@@ -29,7 +29,7 @@ public final class Read {
 	}
 
 	static final class ReadDigits
-			implements ICharScanner {
+			implements ICharScanner<ICharWriter> {
 
 		@Override
 		public void scan( ICharReader in, ICharWriter out ) {
@@ -40,7 +40,7 @@ public final class Read {
 	}
 
 	static final class ReadLetters
-			implements ICharScanner {
+			implements ICharScanner<ICharWriter> {
 
 		@Override
 		public void scan( ICharReader in, ICharWriter out ) {
@@ -51,7 +51,7 @@ public final class Read {
 	}
 
 	static final class ReadN
-			implements ICharScanner {
+			implements ICharScanner<ICharWriter> {
 
 		private final int n;
 
@@ -69,7 +69,7 @@ public final class Read {
 	}
 
 	static final class ReadEscapedUnicodeString
-			implements ICharScanner {
+			implements ICharScanner<ICharWriter> {
 
 		@Override
 		public void scan( ICharReader in, ICharWriter out ) {
@@ -113,19 +113,19 @@ public final class Read {
 		}
 	}
 
-	public static ICharScanner unicode() {
+	public static ICharScanner<ICharWriter> unicode() {
 		return UNICODE_STRING;
 	}
 
-	public static ICharScanner universe( String universe ) {
+	public static ICharScanner<ICharWriter> universe( String universe ) {
 		return new ReadUniverse( universe );
 	}
 
-	public static ICharScanner next( int n ) {
+	public static ICharScanner<ICharWriter> next( int n ) {
 		return new ReadN( n );
 	}
 
-	public static String toString( ICharReader in, ICharScanner scanner ) {
+	public static String toString( ICharReader in, ICharScanner<ICharWriter> scanner ) {
 		StringBuilder out = new StringBuilder();
 		scanner.scan( in, CharWriter.of( out ) );
 		return out.toString();

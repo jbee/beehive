@@ -37,12 +37,12 @@ public class CharReader
 		return once( p ).once( p );
 	}
 
-	public CharReader once( ICharScanner s, ICharWriter out ) {
+	public <T> CharReader once( ICharScanner<T> s, T out ) {
 		s.scan( in, out );
 		return this;
 	}
 
-	public String read( ICharScanner s ) {
+	public String read( ICharScanner<ICharWriter> s ) {
 		return Read.toString( in, s );
 	}
 
