@@ -66,7 +66,6 @@ public final class Read {
 				out.append( in.next() );
 			}
 		}
-
 	}
 
 	static final class ReadEscapedUnicodeString
@@ -82,7 +81,7 @@ public final class Read {
 					switch ( c ) {
 						case 'u':
 							out.append( Character.toChars( Integer.parseInt( Read.toString( in,
-									DIGITS ), 16 ) ) );
+									next( 4 ) ), 16 ) ) );
 							break;
 						case '"':
 							out.append( '"' );
