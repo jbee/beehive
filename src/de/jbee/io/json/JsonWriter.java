@@ -16,23 +16,23 @@ public class JsonWriter
 	@Override
 	public void visit( String value ) {
 		out.append( '"' );
-		out.appendSequence( JsonString.escape( value ) );
+		out.append( JsonString.escape( value ) );
 		out.append( '"' );
 	}
 
 	@Override
 	public void visit( Number value ) {
-		out.appendSequence( new JsonNumber( value ).toString() );
+		out.append( new JsonNumber( value ).toString() );
 	}
 
 	@Override
 	public void visit( boolean value ) {
-		out.appendSequence( JsonBoolean.valueOf( value ).toString() );
+		out.append( JsonBoolean.valueOf( value ).toString() );
 	}
 
 	@Override
 	public void visitNull() {
-		out.appendSequence( JsonNull.OBJECT.toString() );
+		out.append( JsonNull.OBJECT.toString() );
 	}
 
 	@Override

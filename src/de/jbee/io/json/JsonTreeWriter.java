@@ -28,27 +28,27 @@ public class JsonTreeWriter
 
 	@Override
 	public void visit( JsonBoolean value ) {
-		out.appendSequence( value.toString() );
+		out.append( value.toString() );
 	}
 
 	@Override
 	public void visit( JsonNull value ) {
-		out.appendSequence( value.toString() );
+		out.append( value.toString() );
 	}
 
 	@Override
 	public void visit( JsonNumber value ) {
-		out.appendSequence( value.toString() );
+		out.append( value.toString() );
 	}
 
 	@Override
 	public void visit( JsonString value ) {
-		out.appendSequence( value.toString() );
+		out.append( value.toString() );
 	}
 
 	@Override
 	public void visitMember( String name, IJsonValue value ) {
-		out.appendSequence( name );
+		out.append( name );
 		out.append( ':' );
 		value.pass( this );
 		out.append( ',' );

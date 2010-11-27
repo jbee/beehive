@@ -37,6 +37,10 @@ public class CharReader
 		return once( p ).once( p );
 	}
 
+	public String read( ICharScanner s ) {
+		return Read.toString( in, s );
+	}
+
 	public static ICharReader of( Reader reader ) {
 		return new ReaderAdapter( reader );
 	}

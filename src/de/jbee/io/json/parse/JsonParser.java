@@ -1,10 +1,10 @@
 package de.jbee.io.json.parse;
 
-
 import de.jbee.io.CharReader;
 import de.jbee.io.Gobble;
 import de.jbee.io.ICharReader;
 import de.jbee.io.IProcessable;
+import de.jbee.io.Read;
 import de.jbee.io.json.IJsonProcessor;
 import de.jbee.io.json.JsonType;
 import de.jbee.io.json.JsonValue;
@@ -67,7 +67,7 @@ public final class JsonParser {
 
 	private void parseMember( IJsonProcessor out ) {
 		in.once( Gobble.whitespace() );
-		String name = readString();
+		String name = in.read( Read.unicode() );
 		in.once( Gobble.aWhitespaced( ':' ) );
 		parseValue( name, out );
 	}
@@ -105,16 +105,11 @@ public final class JsonParser {
 	}
 
 	private void parseString( IJsonProcessor out ) {
-		out.visit( readString() );
+		out.visit( in.read( Read.unicode() ) );
 	}
 
 	private void parseNumber( IJsonProcessor out ) {
-		StringBuilder b = new StringBuilder( 10 );
-		b.append( in.next() );
-		while ( in.hasNext() && NUMBER_UNIVERSE.indexOf( in.peek() ) >= 0 ) {
-			b.append( in.next() );
-		}
-		out.visit( JsonValue.number( b.toString() ) );
+		out.visit( JsonValue.number( in.read( Read.universe( NUMBER_UNIVERSE ) ) ) );
 	}
 
 	private void parseBoolean( IJsonProcessor out ) {
@@ -148,56 +143,6 @@ public final class JsonParser {
 			case OBJECT:
 				in.once( Gobble.block( "{[", "]}", '"', Gobble.unicode() ) );
 		}
-	}
-
-	private char[] read( int n ) {
-		char[] chars = new char[n];
-		for ( int i = 0; i < n; i++ ) {
-			chars[i] = in.next();
-		}
-		return chars;
-	}
-
-	private String readString() {
-		in.once( Gobble.a( '"' ) );
-		StringBuilder b = new StringBuilder();
-		while ( in.peek() != '"' ) {
-			char c = in.next();
-			if ( c == '\\' ) {
-				c = in.next();
-				switch ( c ) {
-					case 'u':
-						b.append( Character.toChars( Integer.parseInt( String.valueOf( read( 4 ) ),
-								16 ) ) );
-						break;
-					case '"':
-						b.append( '"' );
-						break;
-					case '\\':
-						b.append( '\\' );
-						break;
-					case '/':
-						b.append( '/' );
-						break;
-					case 'b':
-						b.append( '\b' );
-					case 'f':
-						b.append( '\f' );
-					case 'n':
-						b.append( '\n' );
-					case 'r':
-						b.append( '\r' );
-					case 't':
-						b.append( '\t' );
-					default:
-						break;
-				}
-			} else {
-				b.append( c );
-			}
-		}
-		in.once( Gobble.a( '"' ) );
-		return b.toString();
 	}
 
 }
