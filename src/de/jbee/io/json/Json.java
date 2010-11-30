@@ -3,9 +3,11 @@ package de.jbee.io.json;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
-public final class JsonValue {
+public final class Json {
 
-	private JsonValue() {
+	public static final String NUMBER_UNIVERSE = ".0123456789+-eE";
+
+	private Json() {
 		// util
 	}
 

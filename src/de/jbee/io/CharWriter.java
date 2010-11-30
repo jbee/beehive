@@ -4,6 +4,10 @@ import java.io.IOException;
 
 public final class CharWriter {
 
+	public static ICharWriter of( Appendable out ) {
+		return new AppendableAdapter( out );
+	}
+
 	private CharWriter() {
 		// util
 	}
@@ -16,15 +20,6 @@ public final class CharWriter {
 		AppendableAdapter( Appendable out ) {
 			super();
 			this.out = out;
-		}
-
-		@Override
-		public void append( CharSequence s ) {
-			try {
-				out.append( s );
-			} catch ( IOException e ) {
-				throw new RuntimeException( e );
-			}
 		}
 
 		@Override
@@ -45,9 +40,14 @@ public final class CharWriter {
 			}
 		}
 
-	}
+		@Override
+		public void append( CharSequence s ) {
+			try {
+				out.append( s );
+			} catch ( IOException e ) {
+				throw new RuntimeException( e );
+			}
+		}
 
-	public static ICharWriter of( Appendable out ) {
-		return new AppendableAdapter( out );
 	}
 }

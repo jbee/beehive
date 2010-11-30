@@ -6,6 +6,10 @@ import java.io.Reader;
 public class CharReader
 		implements ICharReader {
 
+	public static ICharReader of( Reader reader ) {
+		return new ReaderAdapter( reader );
+	}
+
 	private final ICharReader in;
 
 	public CharReader( ICharReader in ) {
@@ -23,18 +27,9 @@ public class CharReader
 		return in.next();
 	}
 
-	@Override
-	public Character peek() {
-		return in.peek();
-	}
-
 	public CharReader once( ICharProcessor p ) {
 		p.process( in );
 		return this;
-	}
-
-	public CharReader twice( ICharProcessor p ) {
-		return once( p ).once( p );
 	}
 
 	public <T> CharReader once( ICharScanner<T> s, T out ) {
@@ -42,12 +37,17 @@ public class CharReader
 		return this;
 	}
 
+	@Override
+	public Character peek() {
+		return in.peek();
+	}
+
 	public String read( ICharScanner<ICharWriter> s ) {
 		return Read.toString( in, s );
 	}
 
-	public static ICharReader of( Reader reader ) {
-		return new ReaderAdapter( reader );
+	public CharReader twice( ICharProcessor p ) {
+		return once( p ).once( p );
 	}
 
 	static final class ReaderAdapter
@@ -70,6 +70,19 @@ public class CharReader
 				: readAhead();
 		}
 
+		@Override
+		public Character next() {
+			readAheadIfNeeded();
+			ahead = false;
+			return (char) token;
+		}
+
+		@Override
+		public Character peek() {
+			readAheadIfNeeded();
+			return (char) token;
+		}
+
 		private boolean readAhead() {
 			try {
 				token = reader.read();
@@ -78,17 +91,6 @@ public class CharReader
 			} catch ( IOException e ) {
 				return false;
 			}
-		}
-
-		private boolean tokenAvailable() {
-			return token != -1;
-		}
-
-		@Override
-		public Character next() {
-			readAheadIfNeeded();
-			ahead = false;
-			return (char) token;
 		}
 
 		private void readAheadIfNeeded() {
@@ -100,10 +102,8 @@ public class CharReader
 			}
 		}
 
-		@Override
-		public Character peek() {
-			readAheadIfNeeded();
-			return (char) token;
+		private boolean tokenAvailable() {
+			return token != -1;
 		}
 
 	}

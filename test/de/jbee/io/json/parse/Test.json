@@ -45,6 +45,9 @@
         "dataStoreMaxConns": 100,
         "dataStoreConnUsageLimit": 100,
         "dataStoreLogLevel": "debug",
+        "fakeEmptyParam":[],
+        "fakeEmptyObjParam":{},
+        "fakeIntParam":[1,2,4,5],
         "maxUrlLength": 500}},
     {
       "servlet-name": "cofaxEmail",

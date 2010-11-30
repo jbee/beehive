@@ -11,29 +11,37 @@ import java.util.InputMismatchException;
  */
 public final class CharProcessor {
 
-	private CharProcessor() {
-		// util
-	}
-
 	public static final ICharProcessor NULL_OBJECT = new NullCharProcessor();
 
-	static final class CombinedCharProcesspr
-			implements ICharProcessor {
+	public static ICharProcessor combine( ICharProcessor first, ICharProcessor second ) {
+		return first == NULL_OBJECT
+			? second
+			: second == NULL_OBJECT
+				? first
+				: new CombinedCharProcesspr( first, second );
+	}
 
-		final ICharProcessor first;
-		final ICharProcessor second;
+	public static ICharProcessor listOf( ICharProcessor element, char separator ) {
+		return new ListCharProcessor( element, separator );
+	}
 
-		CombinedCharProcesspr( ICharProcessor first, ICharProcessor second ) {
-			super();
-			this.first = first;
-			this.second = second;
+	public static <T> ICharProcessor of( ICharScanner<T> scanner, T out ) {
+		return new CharScannerAdapter<T>( scanner, out );
+	}
+
+	public static ICharProcessor successively( ICharProcessor first, ICharProcessor... more ) {
+		if ( more == null || more.length == 0 ) {
+			return first;
 		}
-
-		@Override
-		public void process( ICharReader in ) {
-			first.process( in );
-			second.process( in );
+		ICharProcessor res = first;
+		for ( int i = 0; i < more.length; i++ ) {
+			res = combine( res, more[i] );
 		}
+		return res;
+	}
+
+	private CharProcessor() {
+		// util
 	}
 
 	static final class CharScannerAdapter<T>
@@ -54,12 +62,41 @@ public final class CharProcessor {
 		}
 	}
 
-	static final class NullCharProcessor
+	static final class CombinedCharProcesspr
 			implements ICharProcessor {
+
+		final ICharProcessor first;
+		final ICharProcessor second;
+
+		CombinedCharProcesspr( ICharProcessor first, ICharProcessor second ) {
+			super();
+			this.first = first;
+			this.second = second;
+		}
 
 		@Override
 		public void process( ICharReader in ) {
-			// do nothing
+			first.process( in );
+			second.process( in );
+		}
+	}
+
+	static abstract class ExpectingCharProcessor
+			implements ICharProcessor {
+
+		protected final void expect( ICharReader in, char expected ) {
+			if ( !in.hasNext() ) {
+				mismatch( "Needed '" + expected + "' but no further token available!" );
+			}
+			char next = in.next();
+			if ( next != expected ) {
+				mismatch( "Expeceted '" + expected + "' but found: '" + next + "'" );
+			}
+		}
+
+		protected final void mismatch( String message )
+				throws InputMismatchException {
+			throw new InputMismatchException( message );
 		}
 	}
 
@@ -85,38 +122,12 @@ public final class CharProcessor {
 		}
 	}
 
-	static abstract class ExpectingCharProcessor
+	static final class NullCharProcessor
 			implements ICharProcessor {
 
-		protected final void mismatch( String message )
-				throws InputMismatchException {
-			throw new InputMismatchException( message );
+		@Override
+		public void process( ICharReader in ) {
+			// do nothing
 		}
-
-		protected final void expect( ICharReader in, char expected ) {
-			if ( !in.hasNext() ) {
-				mismatch( "Needed '" + expected + "' but no further token available!" );
-			}
-			char next = in.next();
-			if ( next != expected ) {
-				mismatch( "Expeceted '" + expected + "' but found: '" + next + "'" );
-			}
-		}
-	}
-
-	public static ICharProcessor list( ICharProcessor element, char separator ) {
-		return new ListCharProcessor( element, separator );
-	}
-
-	public static ICharProcessor combine( ICharProcessor first, ICharProcessor second ) {
-		return first == NULL_OBJECT
-			? second
-			: second == NULL_OBJECT
-				? first
-				: new CombinedCharProcesspr( first, second );
-	}
-
-	public static <T> ICharProcessor of( ICharScanner<T> scanner, T out ) {
-		return new CharScannerAdapter<T>( scanner, out );
 	}
 }

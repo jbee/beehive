@@ -19,8 +19,92 @@ public final class Gobble {
 	private static final ICharProcessor LETTERS = new GobbleLetters();
 	private static final ICharProcessor UNICODE_STRING = new GobbleEscapedUnicodeString();
 
+	public static ICharProcessor a( char mandatory ) {
+		return new GobbleAChar( mandatory );
+	}
+
+	public static ICharProcessor all( char optional ) {
+		return new GobbleAll( optional );
+	}
+
+	public static ICharProcessor aWhitespaced( char mandatory ) {
+		return whitespaced( a( mandatory ) );
+	}
+
+	public static ICharProcessor block( String openUniverse, String closeUniverse,
+			char escapeingBlockOpener, ICharProcessor escapeingBlockProcessor ) {
+		return new GobbleBlock( openUniverse, closeUniverse, escapeingBlockOpener,
+				escapeingBlockProcessor );
+	}
+
+	public static ICharProcessor eitherOr( String either, String or ) {
+		return new GobbleEitherOr( either, or );
+	}
+
+	public static ICharProcessor letters() {
+		return LETTERS;
+	}
+
+	public static ICharProcessor maybe( char optional ) {
+		return new GobbleMaybeChar( optional );
+	}
+
+	public static ICharProcessor next( int n ) {
+		return n <= 0
+			? NOTHING
+			: n == 1
+				? NEXT_1
+				: new GobbleN( n );
+	}
+
+	public static ICharProcessor next1() {
+		return NEXT_1;
+	}
+
+	public static ICharProcessor just( String sequence ) {
+		return new GobbleASequence( sequence );
+	}
+
+	public static ICharProcessor unicode() {
+		return UNICODE_STRING;
+	}
+
+	public static ICharProcessor universe( String universe ) {
+		return new GobbleUniverse( universe );
+	}
+
+	public static ICharProcessor until( char end ) {
+		return new GobbleUntilChar( end );
+	}
+
+	public static ICharProcessor whitespace() {
+		return WHITESPACE;
+	}
+
+	public static ICharProcessor whitespaced( ICharProcessor inner ) {
+		return inner == NOTHING
+			? WHITESPACE
+			: CharProcessor.combine( CharProcessor.combine( WHITESPACE, inner ), WHITESPACE );
+	}
+
 	private Gobble() {
 		// util
+	}
+
+	static final class GobbleAChar
+			extends ExpectingCharProcessor {
+
+		final char mandatory;
+
+		GobbleAChar( char mandatory ) {
+			super();
+			this.mandatory = mandatory;
+		}
+
+		@Override
+		public void process( ICharReader in ) {
+			expect( in, mandatory );
+		}
 	}
 
 	static final class GobbleAll
@@ -41,142 +125,6 @@ public final class Gobble {
 		}
 	}
 
-	static final class GobbleUniverse
-			implements ICharProcessor {
-
-		final String universe;
-
-		GobbleUniverse( String universe ) {
-			super();
-			this.universe = universe;
-		}
-
-		@Override
-		public void process( ICharReader in ) {
-			while ( in.hasNext() && universe.indexOf( in.peek() ) >= 0 ) {
-				in.next();
-			}
-		}
-	}
-
-	static final class GobbleLetters
-			implements ICharProcessor {
-
-		@Override
-		public void process( ICharReader in ) {
-			while ( in.hasNext() && Character.isLetter( in.peek() ) ) {
-				in.next();
-			}
-		}
-
-	}
-
-	static final class GobblePattern
-			implements ICharProcessor {
-
-		final Pattern pattern;
-
-		GobblePattern( Pattern pattern ) {
-			super();
-			this.pattern = pattern;
-		}
-
-		@Override
-		public void process( ICharReader in ) {
-			StringBuilder b = new StringBuilder();
-			boolean matches = true;
-			while ( in.hasNext() && matches ) {
-				b.append( in.peek() );
-				matches = pattern.matcher( b ).matches();
-				if ( matches ) {
-					in.next();
-				}
-			}
-		}
-	}
-
-	static final class GobbleUntilChar
-			implements ICharProcessor {
-
-		final char end;
-
-		GobbleUntilChar( char end ) {
-			super();
-			this.end = end;
-		}
-
-		@Override
-		public void process( ICharReader in ) {
-			while ( in.hasNext() && in.peek() != end ) {
-				in.next();
-			}
-		}
-	}
-
-	static final class GobbleN
-			implements ICharProcessor {
-
-		final int n;
-
-		GobbleN( int n ) {
-			super();
-			this.n = n;
-		}
-
-		@Override
-		public void process( ICharReader in ) {
-			for ( int i = 0; i < n; i++ ) {
-				in.next();
-			}
-		}
-	}
-
-	static final class GobbleWhitespace
-			implements ICharProcessor {
-
-		@Override
-		public void process( ICharReader in ) {
-			while ( in.hasNext() && Character.isWhitespace( in.peek() ) ) {
-				in.next();
-			}
-
-		}
-	}
-
-	static final class GobbleMaybeChar
-			implements ICharProcessor {
-
-		private final char optional;
-
-		GobbleMaybeChar( char optional ) {
-			super();
-			this.optional = optional;
-		}
-
-		@Override
-		public void process( ICharReader in ) {
-			if ( in.peek() == optional ) {
-				in.next();
-			}
-		}
-	}
-
-	static final class GobbleAChar
-			extends ExpectingCharProcessor {
-
-		final char mandatory;
-
-		GobbleAChar( char mandatory ) {
-			super();
-			this.mandatory = mandatory;
-		}
-
-		@Override
-		public void process( ICharReader in ) {
-			expect( in, mandatory );
-		}
-	}
-
 	static final class GobbleASequence
 			extends ExpectingCharProcessor {
 
@@ -194,25 +142,6 @@ public final class Gobble {
 			}
 		}
 
-	}
-
-	static final class GobbleEscapedUnicodeString
-			extends ExpectingCharProcessor {
-
-		@Override
-		public void process( ICharReader in ) {
-			a( '"' ).process( in );
-			while ( in.peek() != '"' ) {
-				char c = in.next();
-				if ( c == '\\' ) {
-					c = in.next(); // gobble the escaped char
-					if ( c == 'u' ) { // if it was u
-						next( 4 ).process( in ); // gobble following 4 digit hex number
-					}
-				}
-			}
-			a( '"' ).process( in );
-		}
 	}
 
 	static final class GobbleBlock
@@ -254,67 +183,166 @@ public final class Gobble {
 		}
 	}
 
-	public static ICharProcessor next( int n ) {
-		return n <= 0
-			? NOTHING
-			: n == 1
-				? NEXT_1
-				: new GobbleN( n );
+	static final class GobbleEscapedUnicodeString
+			extends ExpectingCharProcessor {
+
+		@Override
+		public void process( ICharReader in ) {
+			a( '"' ).process( in );
+			while ( in.peek() != '"' ) {
+				char c = in.next();
+				if ( c == '\\' ) {
+					c = in.next(); // gobble the escaped char
+					if ( c == 'u' ) { // if it was u
+						next( 4 ).process( in ); // gobble following 4 digit hex number
+					}
+				}
+			}
+			a( '"' ).process( in );
+		}
 	}
 
-	public static ICharProcessor until( char end ) {
-		return new GobbleUntilChar( end );
+	static final class GobbleLetters
+			implements ICharProcessor {
+
+		@Override
+		public void process( ICharReader in ) {
+			while ( in.hasNext() && Character.isLetter( in.peek() ) ) {
+				in.next();
+			}
+		}
+
 	}
 
-	public static ICharProcessor next1() {
-		return NEXT_1;
+	static final class GobbleMaybeChar
+			implements ICharProcessor {
+
+		private final char optional;
+
+		GobbleMaybeChar( char optional ) {
+			super();
+			this.optional = optional;
+		}
+
+		@Override
+		public void process( ICharReader in ) {
+			if ( in.peek() == optional ) {
+				in.next();
+			}
+		}
 	}
 
-	public static ICharProcessor whitespace() {
-		return WHITESPACE;
+	static final class GobbleN
+			implements ICharProcessor {
+
+		final int n;
+
+		GobbleN( int n ) {
+			super();
+			this.n = n;
+		}
+
+		@Override
+		public void process( ICharReader in ) {
+			for ( int i = 0; i < n; i++ ) {
+				in.next();
+			}
+		}
 	}
 
-	public static ICharProcessor whitespaced( ICharProcessor inner ) {
-		return inner == NOTHING
-			? WHITESPACE
-			: CharProcessor.combine( CharProcessor.combine( WHITESPACE, inner ), WHITESPACE );
+	static final class GobblePattern
+			implements ICharProcessor {
+
+		final Pattern pattern;
+
+		GobblePattern( Pattern pattern ) {
+			super();
+			this.pattern = pattern;
+		}
+
+		@Override
+		public void process( ICharReader in ) {
+			StringBuilder b = new StringBuilder();
+			boolean matches = true;
+			while ( in.hasNext() && matches ) {
+				b.append( in.peek() );
+				matches = pattern.matcher( b ).matches();
+				if ( matches ) {
+					in.next();
+				}
+			}
+		}
 	}
 
-	public static ICharProcessor aWhitespaced( char mandatory ) {
-		return whitespaced( a( mandatory ) );
+	static final class GobbleUniverse
+			implements ICharProcessor {
+
+		final String universe;
+
+		GobbleUniverse( String universe ) {
+			super();
+			this.universe = universe;
+		}
+
+		@Override
+		public void process( ICharReader in ) {
+			while ( in.hasNext() && universe.indexOf( in.peek() ) >= 0 ) {
+				in.next();
+			}
+		}
 	}
 
-	public static ICharProcessor a( char mandatory ) {
-		return new GobbleAChar( mandatory );
+	static final class GobbleEitherOr
+			implements ICharProcessor {
+
+		private final char eitherStart;
+		private final ICharProcessor either;
+		private final ICharProcessor or;
+
+		GobbleEitherOr( String either, String or ) {
+			super();
+			this.eitherStart = either.charAt( 0 );
+			this.either = just( either );
+			this.or = just( or );
+		}
+
+		@Override
+		public void process( ICharReader in ) {
+			if ( in.peek() == eitherStart ) {
+				either.process( in );
+			} else {
+				or.process( in );
+			}
+		}
 	}
 
-	public static ICharProcessor one( String sequence ) {
-		return new GobbleASequence( sequence );
+	static final class GobbleUntilChar
+			implements ICharProcessor {
+
+		final char end;
+
+		GobbleUntilChar( char end ) {
+			super();
+			this.end = end;
+		}
+
+		@Override
+		public void process( ICharReader in ) {
+			while ( in.hasNext() && in.peek() != end ) {
+				in.next();
+			}
+		}
 	}
 
-	public static ICharProcessor all( char optional ) {
-		return new GobbleAll( optional );
-	}
+	static final class GobbleWhitespace
+			implements ICharProcessor {
 
-	public static ICharProcessor maybe( char optional ) {
-		return new GobbleMaybeChar( optional );
-	}
+		@Override
+		public void process( ICharReader in ) {
+			while ( in.hasNext() && Character.isWhitespace( in.peek() ) ) {
+				in.next();
+			}
 
-	public static ICharProcessor universe( String universe ) {
-		return new GobbleUniverse( universe );
-	}
-
-	public static ICharProcessor letters() {
-		return LETTERS;
-	}
-
-	public static ICharProcessor unicode() {
-		return UNICODE_STRING;
-	}
-
-	public static ICharProcessor block( String openUniverse, String closeUniverse,
-			char escapeingBlockOpener, ICharProcessor escapeingBlockProcessor ) {
-		return new GobbleBlock( openUniverse, closeUniverse, escapeingBlockOpener,
-				escapeingBlockProcessor );
+		}
 	}
 }

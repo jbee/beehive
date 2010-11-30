@@ -1,29 +1,68 @@
 package de.jbee.io;
 
+
 public final class Read {
 
 	private static final ReadEscapedUnicodeString UNICODE_STRING = new ReadEscapedUnicodeString();
+
+	static final ICharScanner<ICharWriter> DIGITS = new ReadDigits();
+
+	public static ICharScanner<ICharWriter> next( int n ) {
+		return new ReadN( n );
+	}
+
+	public static String toString( ICharReader in, ICharScanner<ICharWriter> scanner ) {
+		StringBuilder out = new StringBuilder();
+		CharScanner.of( scanner ).scan( in, out );
+		return out.toString();
+	}
+
+	public static ICharScanner<ICharWriter> unicode() {
+		return UNICODE_STRING;
+	}
+
+	public static ICharScanner<ICharWriter> universe( String universe ) {
+		return new ReadUniverse( universe );
+	}
+
+	public static <T> ICharScanner<T> list( char open, ICharScanner<T> element, char separator,
+			char close ) {
+		return new ListCharScanner<T>( open, element, separator, close );
+	}
 
 	private Read() {
 		// util
 	}
 
-	static final ICharScanner<ICharWriter> DIGITS = new ReadDigits();
+	static final class ListCharScanner<T>
+			implements ICharScanner<T> {
 
-	static final class ReadUniverse
-			implements ICharScanner<ICharWriter> {
+		private final char open;
+		private final ICharScanner<T> element;
+		private final char separator;
+		private final char close;
 
-		private final String universe;
-
-		ReadUniverse( String universe ) {
+		ListCharScanner( char open, ICharScanner<T> element, char separator, char close ) {
 			super();
-			this.universe = universe;
+			this.open = open;
+			this.element = element;
+			this.separator = separator;
+			this.close = close;
 		}
 
-		@Override
-		public void scan( ICharReader in, ICharWriter out ) {
-			while ( in.hasNext() && universe.indexOf( in.peek() ) >= 0 ) {
-				out.append( in.next() );
+		public void scan( ICharReader in, T out ) {
+			Gobble.a( open ).process( in );
+			if ( in.peek() != close ) {
+				scanElement( in, out );
+			}
+			Gobble.a( close ).process( in );
+		}
+
+		private void scanElement( ICharReader in, T out ) {
+			element.scan( in, out );
+			if ( in.peek() == separator ) {
+				Gobble.a( separator ).process( in );
+				scanElement( in, out );
 			}
 		}
 	}
@@ -34,35 +73,6 @@ public final class Read {
 		@Override
 		public void scan( ICharReader in, ICharWriter out ) {
 			while ( in.hasNext() && Character.isDigit( in.peek() ) ) {
-				out.append( in.next() );
-			}
-		}
-	}
-
-	static final class ReadLetters
-			implements ICharScanner<ICharWriter> {
-
-		@Override
-		public void scan( ICharReader in, ICharWriter out ) {
-			while ( in.hasNext() && Character.isLetter( in.peek() ) ) {
-				out.append( in.next() );
-			}
-		}
-	}
-
-	static final class ReadN
-			implements ICharScanner<ICharWriter> {
-
-		private final int n;
-
-		ReadN( int n ) {
-			super();
-			this.n = n;
-		}
-
-		@Override
-		public void scan( ICharReader in, ICharWriter out ) {
-			for ( int i = 0; i < n; i++ ) {
 				out.append( in.next() );
 			}
 		}
@@ -113,21 +123,50 @@ public final class Read {
 		}
 	}
 
-	public static ICharScanner<ICharWriter> unicode() {
-		return UNICODE_STRING;
+	static final class ReadLetters
+			implements ICharScanner<ICharWriter> {
+
+		@Override
+		public void scan( ICharReader in, ICharWriter out ) {
+			while ( in.hasNext() && Character.isLetter( in.peek() ) ) {
+				out.append( in.next() );
+			}
+		}
 	}
 
-	public static ICharScanner<ICharWriter> universe( String universe ) {
-		return new ReadUniverse( universe );
+	static final class ReadN
+			implements ICharScanner<ICharWriter> {
+
+		private final int n;
+
+		ReadN( int n ) {
+			super();
+			this.n = n;
+		}
+
+		@Override
+		public void scan( ICharReader in, ICharWriter out ) {
+			for ( int i = 0; i < n; i++ ) {
+				out.append( in.next() );
+			}
+		}
 	}
 
-	public static ICharScanner<ICharWriter> next( int n ) {
-		return new ReadN( n );
-	}
+	static final class ReadUniverse
+			implements ICharScanner<ICharWriter> {
 
-	public static String toString( ICharReader in, ICharScanner<ICharWriter> scanner ) {
-		StringBuilder out = new StringBuilder();
-		scanner.scan( in, CharWriter.of( out ) );
-		return out.toString();
+		private final String universe;
+
+		ReadUniverse( String universe ) {
+			super();
+			this.universe = universe;
+		}
+
+		@Override
+		public void scan( ICharReader in, ICharWriter out ) {
+			while ( in.hasNext() && universe.indexOf( in.peek() ) >= 0 ) {
+				out.append( in.next() );
+			}
+		}
 	}
 }
