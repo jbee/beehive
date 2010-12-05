@@ -1,13 +1,19 @@
 package de.jbee.io.json;
 
 public final class JsonBoolean
-		implements IJsonValue {
+		implements IJson {
 
 	public static final JsonBoolean TRUE = new JsonBoolean();
 	public static final JsonBoolean FALSE = new JsonBoolean();
 
 	private JsonBoolean() {
 		// hide
+	}
+
+	public static JsonBoolean valueOf( Boolean value ) {
+		return value == null
+			? FALSE
+			: valueOf( value.booleanValue() );
 	}
 
 	public static JsonBoolean valueOf( boolean value ) {
@@ -23,7 +29,7 @@ public final class JsonBoolean
 
 	@Override
 	public void passChildren( IJsonTreeVisitor visitor ) {
-		visitor.visit( booleanValue() );
+		visitor.process( booleanValue() );
 	}
 
 	public boolean booleanValue() {

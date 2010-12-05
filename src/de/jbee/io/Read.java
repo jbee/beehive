@@ -1,5 +1,6 @@
 package de.jbee.io;
 
+import java.util.InputMismatchException;
 
 public final class Read {
 
@@ -83,8 +84,13 @@ public final class Read {
 
 		@Override
 		public void scan( ICharReader in, ICharWriter out ) {
-			Gobble.a( '"' ).process( in );
-			while ( in.peek() != '"' ) {
+			char frameOpener = in.peek();
+			if ( "\"'".indexOf( frameOpener ) < 0 ) {
+				throw new InputMismatchException( "Not a valid unicode string opener: "
+						+ frameOpener );
+			}
+			Gobble.a( frameOpener ).process( in );
+			while ( in.peek() != frameOpener ) {
 				char c = in.next();
 				if ( c == '\\' ) {
 					c = in.next();
@@ -104,14 +110,24 @@ public final class Read {
 							break;
 						case 'b':
 							out.append( '\b' );
+							break;
 						case 'f':
 							out.append( '\f' );
+							break;
 						case 'n':
 							out.append( '\n' );
+							break;
 						case 'r':
 							out.append( '\r' );
+							break;
 						case 't':
 							out.append( '\t' );
+							break;
+						case '\'':
+							if ( frameOpener == '\'' ) {
+								out.append( '\'' );
+							}
+							break;
 						default:
 							break;
 					}
@@ -119,7 +135,7 @@ public final class Read {
 					out.append( c );
 				}
 			}
-			Gobble.a( '"' ).process( in );
+			Gobble.a( frameOpener ).process( in );
 		}
 	}
 

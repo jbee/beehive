@@ -1,13 +1,18 @@
 package de.jbee.io.json;
 
 import java.util.Arrays;
+import java.util.List;
 
 public final class JsonArray
-		implements IJsonValue {
+		implements IJson {
 
-	private final IJsonValue[] elements;
+	private final IJson[] elements;
 
-	public JsonArray( IJsonValue... elements ) {
+	public JsonArray( List<IJson> elements ) {
+		this( elements.toArray( new IJson[elements.size()] ) );
+	}
+
+	public JsonArray( IJson... elements ) {
 		super();
 		this.elements = elements;
 	}

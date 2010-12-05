@@ -1,7 +1,7 @@
 package de.jbee.io.json;
 
 public final class JsonNumber
-		implements IJsonValue {
+		implements IJson {
 
 	private final Number value;
 
@@ -17,7 +17,7 @@ public final class JsonNumber
 
 	@Override
 	public void passChildren( IJsonTreeVisitor visitor ) {
-		visitor.visit( value );
+		visitor.process( value );
 	}
 
 	@Override

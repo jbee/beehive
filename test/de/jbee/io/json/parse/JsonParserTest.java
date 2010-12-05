@@ -9,7 +9,7 @@ import de.jbee.io.CharReader;
 import de.jbee.io.ICharReader;
 import de.jbee.io.ICharScanner;
 import de.jbee.io.json.IJsonProcessor;
-import de.jbee.io.json.IJsonValue;
+import de.jbee.io.json.IJson;
 import de.jbee.io.json.JsonBuilder;
 import de.jbee.io.json.JsonParser;
 import de.jbee.io.json.filter.JsonFilter;
@@ -31,7 +31,15 @@ public class JsonParserTest {
 				return !path.isSubElementOf( PropertyPath.of( "web-app.servlet.init-param" ) );
 			}
 		} ) );
-		IJsonValue value = treeBuilder.build();
+		IJson value = treeBuilder.build();
 		System.out.println( value );
 	}
+
+	@Test
+	public void testParseUtilityMethod()
+			throws FileNotFoundException {
+		ICharReader in = CharReader.of( new FileReader( "test/de/jbee/io/json/parse/Test.json" ) );
+		System.out.println( JsonParser.parse( in ) );
+	}
+
 }

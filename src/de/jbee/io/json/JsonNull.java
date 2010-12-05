@@ -1,7 +1,7 @@
 package de.jbee.io.json;
 
 public final class JsonNull
-		implements IJsonValue {
+		implements IJson {
 
 	public static final JsonNull OBJECT = new JsonNull();
 
@@ -16,7 +16,7 @@ public final class JsonNull
 
 	@Override
 	public void passChildren( IJsonTreeVisitor visitor ) {
-		visitor.visitNull();
+		visitor.processNull();
 	}
 
 	@Override

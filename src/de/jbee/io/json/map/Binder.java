@@ -30,6 +30,10 @@ public class Binder {
 	}
 
 	public <T> InstantiatorBinder<T> bind( Class<T> valueType ) {
+		return bind( TypeSelector.is( valueType ) );
+	}
+
+	public <T> InstantiatorBinder<T> bind( ITypeSelector valueTypeSelector ) {
 
 		return null;
 	}

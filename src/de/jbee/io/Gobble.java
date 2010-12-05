@@ -32,13 +32,17 @@ public final class Gobble {
 	}
 
 	public static ICharProcessor block( String openUniverse, String closeUniverse,
-			char escapeingBlockOpener, ICharProcessor escapeingBlockProcessor ) {
-		return new GobbleBlock( openUniverse, closeUniverse, escapeingBlockOpener,
+			String escapeingUniverse, ICharProcessor escapeingBlockProcessor ) {
+		return new GobbleBlock( openUniverse, closeUniverse, escapeingUniverse,
 				escapeingBlockProcessor );
 	}
 
 	public static ICharProcessor eitherOr( String either, String or ) {
 		return new GobbleEitherOr( either, or );
+	}
+
+	public static ICharProcessor oneOf( String mandatory ) {
+		return new GobbleAMemberChar( mandatory );
 	}
 
 	public static ICharProcessor letters() {
@@ -107,6 +111,22 @@ public final class Gobble {
 		}
 	}
 
+	static final class GobbleAMemberChar
+			extends ExpectingCharProcessor {
+
+		final String members;
+
+		GobbleAMemberChar( String members ) {
+			super();
+			this.members = members;
+		}
+
+		@Override
+		public void process( ICharReader in ) {
+			expectAny( in, members );
+		}
+	}
+
 	static final class GobbleAll
 			implements ICharProcessor {
 
@@ -149,15 +169,15 @@ public final class Gobble {
 
 		final String openUniverse;
 		final String closeUniverse;
-		final char escapeingBlockOpener;
+		final String escapeingUniverse;
 		final ICharProcessor escapeingBlockProcessor;
 
-		GobbleBlock( String openUniverse, String closeUniverse, char escapeingBlockOpener,
+		GobbleBlock( String openUniverse, String closeUniverse, String escapeingUniverse,
 				ICharProcessor escapeingBlockProcessor ) {
 			super();
 			this.openUniverse = openUniverse;
 			this.closeUniverse = closeUniverse;
-			this.escapeingBlockOpener = escapeingBlockOpener;
+			this.escapeingUniverse = escapeingUniverse;
 			this.escapeingBlockProcessor = escapeingBlockProcessor;
 		}
 
@@ -166,7 +186,7 @@ public final class Gobble {
 			int level = 0;
 			do {
 				char c = in.peek();
-				if ( level > 0 && escapeingBlockOpener == c ) {
+				if ( level > 0 && escapeingUniverse.indexOf( c ) >= 0 ) {
 					escapeingBlockProcessor.process( in );
 				} else if ( openUniverse.indexOf( c ) >= 0 ) {
 					level++;
@@ -188,8 +208,11 @@ public final class Gobble {
 
 		@Override
 		public void process( ICharReader in ) {
-			a( '"' ).process( in );
-			while ( in.peek() != '"' ) {
+			char frameOpener = in.peek();
+			if ( "\"'".indexOf( frameOpener ) < 0 ) {
+				mismatch( "Not a valid unicode string opener: " + frameOpener );
+			}
+			while ( in.peek() != frameOpener ) {
 				char c = in.next();
 				if ( c == '\\' ) {
 					c = in.next(); // gobble the escaped char
@@ -198,7 +221,7 @@ public final class Gobble {
 					}
 				}
 			}
-			a( '"' ).process( in );
+			a( frameOpener ).process( in );
 		}
 	}
 

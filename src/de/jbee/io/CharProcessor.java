@@ -85,12 +85,24 @@ public final class CharProcessor {
 			implements ICharProcessor {
 
 		protected final void expect( ICharReader in, char expected ) {
-			if ( !in.hasNext() ) {
-				mismatch( "Needed '" + expected + "' but no further token available!" );
-			}
+			expectHasNext( in );
 			char next = in.next();
 			if ( next != expected ) {
 				mismatch( "Expeceted '" + expected + "' but found: '" + next + "'" );
+			}
+		}
+
+		private void expectHasNext( ICharReader in ) {
+			if ( !in.hasNext() ) {
+				mismatch( "Needed further character but no further token available!" );
+			}
+		}
+
+		protected final void expectAny( ICharReader in, String anyMember ) {
+			expectHasNext( in );
+			char next = in.next();
+			if ( anyMember.indexOf( next ) < 0 ) {
+				mismatch( "Expected any of [" + anyMember + "] but found: '" + next + "'" );
 			}
 		}
 

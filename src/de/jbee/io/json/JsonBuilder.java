@@ -3,7 +3,7 @@ package de.jbee.io.json;
 import java.util.LinkedList;
 import java.util.List;
 
-import de.jbee.io.IProcessable;
+import de.jbee.io.IProcessableUnit;
 import de.jbee.io.json.JsonObject.JsonMember;
 
 public abstract class JsonBuilder
@@ -16,53 +16,53 @@ public abstract class JsonBuilder
 	static final class JsonArrayBuilder
 			extends JsonBuilder {
 
-		private final List<IJsonValue> elements = new LinkedList<IJsonValue>();
+		private final List<IJson> elements = new LinkedList<IJson>();
 
 		@Override
-		public void process( JsonType type, String name, IProcessable<IJsonProcessor> element ) {
+		public void process( JsonType type, String name, IProcessableUnit<IJsonProcessor> unit ) {
 			JsonBuilder builder = forType( type );
-			element.processBy( builder );
+			unit.processBy( builder );
 			elements.add( builder.build() );
 		}
 
 		@Override
-		public IJsonValue build() {
-			return new JsonArray( elements.toArray( new IJsonValue[elements.size()] ) );
+		public IJson build() {
+			return new JsonArray( elements );
 		}
 	}
 
 	static final class JsonValueBuilder
 			extends JsonBuilder {
 
-		private IJsonValue value;
+		private IJson value;
 
 		@Override
-		public void process( JsonType type, String name, IProcessable<IJsonProcessor> element ) {
+		public void process( JsonType type, String name, IProcessableUnit<IJsonProcessor> unit ) {
 			throwBuildException();
 		}
 
 		@Override
-		public final void visit( String value ) {
+		public final void process( String value ) {
 			this.value = new JsonString( value );
 		}
 
 		@Override
-		public final void visit( Number value ) {
+		public final void process( Number value ) {
 			this.value = new JsonNumber( value );
 		}
 
 		@Override
-		public final void visit( boolean value ) {
+		public final void process( boolean value ) {
 			this.value = JsonBoolean.valueOf( value );
 		}
 
 		@Override
-		public final void visitNull() {
+		public final void processNull() {
 			this.value = JsonNull.OBJECT;
 		}
 
 		@Override
-		public IJsonValue build() {
+		public IJson build() {
 			return value;
 		}
 
@@ -74,14 +74,14 @@ public abstract class JsonBuilder
 		private final List<JsonMember> members = new LinkedList<JsonMember>();
 
 		@Override
-		public void process( JsonType type, String name, IProcessable<IJsonProcessor> element ) {
+		public void process( JsonType type, String name, IProcessableUnit<IJsonProcessor> unit ) {
 			JsonBuilder builder = forType( type );
-			element.processBy( builder );
+			unit.processBy( builder );
 			members.add( new JsonMember( name, builder.build() ) );
 		}
 
 		@Override
-		public IJsonValue build() {
+		public IJson build() {
 			return new JsonObject( members.toArray( new JsonMember[members.size()] ) );
 		}
 
@@ -98,7 +98,8 @@ public abstract class JsonBuilder
 	/**
 	 * Necessary because we cannot know what type of json will be processed first later when a fresh
 	 * builder is used. Therefore this builder delays creation of real root until we get to know by
-	 * call to {@link #process(JsonType, String, IProcessable)}. This is transparent to the user.
+	 * call to {@link #process(JsonType, String, IProcessableUnit)}. This is transparent to the
+	 * user.
 	 * 
 	 * In fact the {@linkplain RootJsonBuilder} can be used multiple times in sequence for different
 	 * json values.
@@ -111,22 +112,22 @@ public abstract class JsonBuilder
 		private JsonBuilder rootBuilder;
 
 		@Override
-		public void process( JsonType type, String name, IProcessable<IJsonProcessor> element ) {
+		public void process( JsonType type, String name, IProcessableUnit<IJsonProcessor> unit ) {
 			rootBuilder = forType( type );
-			element.processBy( rootBuilder );
+			unit.processBy( rootBuilder );
 		}
 
 		@Override
-		public IJsonValue build() {
+		public IJson build() {
 			return rootBuilder.build();
 		}
 
 	}
 
-	public abstract IJsonValue build();
+	public abstract IJson build();
 
 	@Override
-	public void visit( boolean value ) {
+	public void process( boolean value ) {
 		throwBuildException();
 	}
 
@@ -136,17 +137,17 @@ public abstract class JsonBuilder
 	}
 
 	@Override
-	public void visit( Number value ) {
+	public void process( Number value ) {
 		throwBuildException();
 	}
 
 	@Override
-	public void visit( String value ) {
+	public void process( String value ) {
 		throwBuildException();
 	}
 
 	@Override
-	public void visitNull() {
+	public void processNull() {
 		throwBuildException();
 	}
 

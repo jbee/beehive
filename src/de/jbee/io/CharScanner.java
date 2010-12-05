@@ -20,9 +20,9 @@ public final class CharScanner {
 		return combine( combine( of( open ), content ), of( close ) );
 	}
 
-	public static <T> IProcessable<T> procesable( ICharReader in,
-			ICharScanner<? super T> processBy, ICharScanner<? super T> discardBy ) {
-		return new ProcessableAdapter<T>( in, processBy, discardBy );
+	public static <T> IProcessableUnit<T> processable( ICharReader in,
+			ICharScanner<? super T> processing, ICharScanner<? super T> discarding ) {
+		return new UnitAdapter<T>( in, processing, discarding );
 	}
 
 	private CharScanner() {
@@ -79,27 +79,27 @@ public final class CharScanner {
 		}
 	}
 
-	static final class ProcessableAdapter<T>
-			implements IProcessable<T> {
+	static final class UnitAdapter<T>
+			implements IProcessableUnit<T> {
 
 		private final ICharReader in;
-		private final ICharScanner<? super T> processBy;
-		private final ICharScanner<? super T> discardBy;
+		private final ICharScanner<? super T> processing;
+		private final ICharScanner<? super T> discarding;
 
-		ProcessableAdapter( ICharReader in, ICharScanner<? super T> processBy,
-				ICharScanner<? super T> discardBy ) {
+		UnitAdapter( ICharReader in, ICharScanner<? super T> processing,
+				ICharScanner<? super T> discarding ) {
 			super();
 			this.in = in;
-			this.processBy = processBy;
-			this.discardBy = discardBy;
+			this.processing = processing;
+			this.discarding = discarding;
 		}
 
 		public void discardBy( T processor ) {
-			discardBy.scan( in, processor );
+			discarding.scan( in, processor );
 		}
 
 		public void processBy( T processor ) {
-			processBy.scan( in, processor );
+			processing.scan( in, processor );
 		}
 	}
 }

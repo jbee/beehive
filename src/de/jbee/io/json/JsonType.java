@@ -14,11 +14,11 @@ public enum JsonType
 	NULL( "n", new JsonNullScanner(), Gobble.letters() ),
 	BOOLEAN( "tf", new JsonBooleanScanner(), Gobble.letters() ),
 	NUMBER( "-0123456789", new JsonNumberScanner(), Gobble.universe( Json.NUMBER_UNIVERSE ) ),
-	STRING( "\"", new JsonStringScanner(), Gobble.unicode() ),
+	STRING( "\"'", new JsonStringScanner(), Gobble.unicode() ),
 	ARRAY( "[", Read.list( '[', JsonParser.getInstance(), ',', ']' ), Gobble.block( "[{", "}]",
-			'"', Gobble.unicode() ) ),
+			"'\"", Gobble.unicode() ) ),
 	OBJECT( "{", Read.list( '{', new JsonMemberScanner(), ',', '}' ), Gobble.block( "{[", "]}",
-			'"', Gobble.unicode() ) );
+			"'\"", Gobble.unicode() ) );
 
 	private static final int OPENER_OFFSET = '"';
 	private static final JsonType[] TYPE_LOOKUP = new JsonType['{' - OPENER_OFFSET + 1];
@@ -66,6 +66,9 @@ public enum JsonType
 		scanner.scan( in, out );
 	}
 
+	/**
+	 * Will {@link Gobble} up the element from <code>in</code>.
+	 */
 	@Override
 	public void process( ICharReader in ) {
 		gobbler.process( in );
@@ -89,7 +92,7 @@ public enum JsonType
 
 		@Override
 		public void scan( ICharReader in, IJsonProcessor out ) {
-			out.visit( Read.toString( in, Read.unicode() ) );
+			out.process( Read.toString( in, Read.unicode() ) );
 		}
 	}
 
@@ -98,7 +101,7 @@ public enum JsonType
 
 		@Override
 		public void scan( ICharReader in, IJsonProcessor out ) {
-			out.visit( Json.number( Read.toString( in, Read.universe( Json.NUMBER_UNIVERSE ) ) ) );
+			out.process( Json.number( Read.toString( in, Read.universe( Json.NUMBER_UNIVERSE ) ) ) );
 		}
 	}
 
@@ -108,7 +111,7 @@ public enum JsonType
 		@Override
 		public void scan( ICharReader in, IJsonProcessor out ) {
 			Gobble.just( "null" ).process( in );
-			out.visitNull();
+			out.processNull();
 		}
 	}
 
@@ -119,7 +122,7 @@ public enum JsonType
 		public void scan( ICharReader in, IJsonProcessor out ) {
 			boolean expectTrue = in.peek() == 't';
 			Gobble.eitherOr( "true", "false" ).process( in );
-			out.visit( expectTrue );
+			out.process( expectTrue );
 		}
 	}
 }

@@ -1,7 +1,7 @@
 package de.jbee.io.json;
 
 import de.jbee.io.ICharWriter;
-import de.jbee.io.IProcessable;
+import de.jbee.io.IProcessableUnit;
 
 public class JsonWriter
 		implements IJsonProcessor {
@@ -14,30 +14,30 @@ public class JsonWriter
 	}
 
 	@Override
-	public void visit( String value ) {
+	public void process( String value ) {
 		out.append( '"' );
 		out.append( JsonString.escape( value ) );
 		out.append( '"' );
 	}
 
 	@Override
-	public void visit( Number value ) {
+	public void process( Number value ) {
 		out.append( new JsonNumber( value ).toString() );
 	}
 
 	@Override
-	public void visit( boolean value ) {
+	public void process( boolean value ) {
 		out.append( JsonBoolean.valueOf( value ).toString() );
 	}
 
 	@Override
-	public void visitNull() {
+	public void processNull() {
 		out.append( JsonNull.OBJECT.toString() );
 	}
 
 	@Override
-	public void process( JsonType type, String name, IProcessable<IJsonProcessor> element ) {
-		element.processBy( this );
+	public void process( JsonType type, String name, IProcessableUnit<IJsonProcessor> unit ) {
+		unit.processBy( this );
 	}
 
 }

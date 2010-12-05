@@ -1,11 +1,11 @@
 package de.jbee.io.json;
 
 public interface IJsonTreeVisitor
-		extends IJsonVisitor {
+		extends IJsonConverter {
 
-	void visitMember( String name, IJsonValue value );
+	void visitMember( String name, IJson value );
 
-	void visitElement( int index, IJsonValue value );
+	void visitElement( int index, IJson value );
 
 	void visit( JsonObject value );
 

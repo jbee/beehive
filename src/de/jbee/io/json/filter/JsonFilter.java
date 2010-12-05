@@ -1,6 +1,6 @@
 package de.jbee.io.json.filter;
 
-import de.jbee.io.IProcessable;
+import de.jbee.io.IProcessableUnit;
 import de.jbee.io.json.IJsonProcessor;
 import de.jbee.io.json.JsonType;
 import de.jbee.io.property.IPropertySelector;
@@ -25,48 +25,48 @@ public class JsonFilter
 	}
 
 	@Override
-	public void process( JsonType type, String name, final IProcessable<IJsonProcessor> element ) {
+	public void process( JsonType type, String name, final IProcessableUnit<IJsonProcessor> unit ) {
 		final PropertyPath memberPath = path.child( name );
 		if ( !selector.selects( memberPath ) ) {
-			element.discardBy( processor );
+			unit.discardBy( processor );
 			return;
 		}
-		processor.process( type, name, new IProcessable<IJsonProcessor>() {
+		processor.process( type, name, new IProcessableUnit<IJsonProcessor>() {
 
 			@Override
 			public void discardBy( IJsonProcessor processor ) {
-				element.discardBy( processor );
+				unit.discardBy( processor );
 			}
 
 			@Override
 			public void processBy( IJsonProcessor processor ) {
-				element.processBy( new JsonFilter( processor, selector, memberPath ) );
+				unit.processBy( new JsonFilter( processor, selector, memberPath ) );
 			}
 		} );
 	}
 
 	@Override
-	public void visit( String value ) {
+	public void process( String value ) {
 		System.out.println( path + " ----- " + value );
-		processor.visit( value );
+		processor.process( value );
 	}
 
 	@Override
-	public void visit( Number value ) {
+	public void process( Number value ) {
 		System.out.println( path + " ----- " + value );
-		processor.visit( value );
+		processor.process( value );
 	}
 
 	@Override
-	public void visit( boolean value ) {
+	public void process( boolean value ) {
 		System.out.println( path + " ----- " + value );
-		processor.visit( value );
+		processor.process( value );
 	}
 
 	@Override
-	public void visitNull() {
+	public void processNull() {
 		System.out.println( path + " ----- null" );
-		processor.visitNull();
+		processor.processNull();
 	}
 
 }

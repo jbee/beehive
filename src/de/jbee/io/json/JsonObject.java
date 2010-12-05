@@ -4,14 +4,14 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 public final class JsonObject
-		implements IJsonValue {
+		implements IJson {
 
 	static class JsonMember {
 
 		final String name;
-		final IJsonValue value;
+		final IJson value;
 
-		JsonMember( String name, IJsonValue value ) {
+		JsonMember( String name, IJson value ) {
 			super();
 			this.name = name;
 			this.value = value;
@@ -29,10 +29,10 @@ public final class JsonObject
 		this.members = members;
 	}
 
-	public static JsonObject of( Map<String, IJsonValue> values ) {
+	public static JsonObject of( Map<String, IJson> values ) {
 		JsonMember[] members = new JsonMember[values.size()];
 		int i = 0;
-		for ( Entry<String, IJsonValue> e : values.entrySet() ) {
+		for ( Entry<String, IJson> e : values.entrySet() ) {
 			members[i++] = new JsonMember( e.getKey(), e.getValue() );
 		}
 		return new JsonObject( members );

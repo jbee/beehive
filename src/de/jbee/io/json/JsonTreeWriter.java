@@ -47,7 +47,7 @@ public class JsonTreeWriter
 	}
 
 	@Override
-	public void visitMember( String name, IJsonValue value ) {
+	public void visitMember( String name, IJson value ) {
 		out.append( name );
 		out.append( ':' );
 		value.pass( this );
@@ -55,7 +55,7 @@ public class JsonTreeWriter
 	}
 
 	@Override
-	public void visitElement( int index, IJsonValue value ) {
+	public void visitElement( int index, IJson value ) {
 		if ( index > 0 ) {
 			out.append( ',' );
 		}
@@ -63,25 +63,25 @@ public class JsonTreeWriter
 	}
 
 	@Override
-	public void visit( String value ) {
+	public void process( String value ) {
 		// TODO Auto-generated method stub
 
 	}
 
 	@Override
-	public void visit( Number value ) {
+	public void process( Number value ) {
 		// TODO Auto-generated method stub
 
 	}
 
 	@Override
-	public void visit( boolean value ) {
+	public void process( boolean value ) {
 		// TODO Auto-generated method stub
 
 	}
 
 	@Override
-	public void visitNull() {
+	public void processNull() {
 		// TODO Auto-generated method stub
 
 	}

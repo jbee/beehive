@@ -1,6 +1,6 @@
 package de.jbee.io.json;
 
-public interface IJsonValue {
+public interface IJson {
 
 	void pass( IJsonTreeVisitor visitor );
 
