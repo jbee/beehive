@@ -43,12 +43,12 @@ public abstract class JsonBuilder
 
 		@Override
 		public final void process( String value ) {
-			this.value = new JsonString( value );
+			this.value = Json.valueOf( value );
 		}
 
 		@Override
 		public final void process( Number value ) {
-			this.value = new JsonNumber( value );
+			this.value = Json.valueOf( value );
 		}
 
 		@Override
@@ -58,7 +58,7 @@ public abstract class JsonBuilder
 
 		@Override
 		public final void processNull() {
-			this.value = JsonNull.OBJECT;
+			this.value = Json.NULL;
 		}
 
 		@Override

@@ -7,8 +7,22 @@ public final class Json {
 
 	public static final String NUMBER_UNIVERSE = ".0123456789+-eE";
 
+	public static IJson NULL = JsonNull.OBJECT;
+
 	private Json() {
 		// util
+	}
+
+	public static IJson valueOf( String value ) {
+		return JsonString.valueOf( value );
+	}
+
+	public static IJson valueOf( Boolean value ) {
+		return JsonBoolean.valueOf( value );
+	}
+
+	public static IJson valueOf( Number value ) {
+		return JsonNumber.valueOf( value );
 	}
 
 	public static Number number( String value ) {

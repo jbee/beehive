@@ -3,7 +3,7 @@ package de.jbee.io.json;
 public final class JsonNull
 		implements IJson {
 
-	public static final JsonNull OBJECT = new JsonNull();
+	static final JsonNull OBJECT = new JsonNull();
 
 	private JsonNull() {
 		// singleton
@@ -22,5 +22,22 @@ public final class JsonNull
 	@Override
 	public String toString() {
 		return "null";
+	}
+
+	@Override
+	public boolean equals( Object obj ) {
+		return obj.getClass() == JsonNull.class;
+	}
+
+	@Override
+	public int hashCode() {
+		return JsonNull.class.hashCode();
+	}
+
+	@Override
+	public int compareTo( IJson other ) {
+		return other.getClass() != JsonNull.class
+			? -1
+			: 0;
 	}
 }

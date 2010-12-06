@@ -33,4 +33,22 @@ public final class JsonArray
 	public String toString() {
 		return Arrays.toString( elements );
 	}
+
+	@Override
+	public int compareTo( IJson other ) {
+		if ( other.getClass() != JsonArray.class ) {
+			return -1;
+		}
+		final IJson[] elems = ( (JsonArray) other ).elements;
+		if ( elems.length != elements.length ) {
+			return Integer.signum( elements.length - elems.length );
+		}
+		for ( int i = 0; i < elems.length; i++ ) {
+			int eCompare = elems[i].compareTo( elements[i] );
+			if ( eCompare != 0 ) {
+				return eCompare;
+			}
+		}
+		return 0;
+	}
 }

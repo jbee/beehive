@@ -5,9 +5,15 @@ public final class JsonNumber
 
 	private final Number value;
 
-	public JsonNumber( Number value ) {
+	private JsonNumber( Number value ) {
 		super();
 		this.value = value;
+	}
+
+	static IJson valueOf( Number value ) {
+		return value == null
+			? Json.NULL
+			: new JsonNumber( value );
 	}
 
 	@Override
@@ -33,5 +39,23 @@ public final class JsonNumber
 			}
 		}
 		return value.toString();
+	}
+
+	@Override
+	public int compareTo( IJson other ) {
+		if ( other.getClass() != JsonNumber.class ) {
+			return -1;
+		}
+		return Double.compare( value.doubleValue(), ( (JsonNumber) other ).value.doubleValue() );
+	}
+
+	@Override
+	public boolean equals( Object obj ) {
+		return obj instanceof JsonNumber && ( (JsonNumber) obj ).value.equals( value );
+	}
+
+	@Override
+	public int hashCode() {
+		return value.hashCode();
 	}
 }

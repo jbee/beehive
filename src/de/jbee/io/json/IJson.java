@@ -1,6 +1,9 @@
 package de.jbee.io.json;
 
-public interface IJson {
+import java.io.Serializable;
+
+public interface IJson
+		extends Serializable, Comparable<IJson> {
 
 	void pass( IJsonTreeVisitor visitor );
 

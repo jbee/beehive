@@ -10,13 +10,13 @@ public final class JsonBoolean
 		// hide
 	}
 
-	public static JsonBoolean valueOf( Boolean value ) {
+	static IJson valueOf( Boolean value ) {
 		return value == null
-			? FALSE
+			? Json.NULL
 			: valueOf( value.booleanValue() );
 	}
 
-	public static JsonBoolean valueOf( boolean value ) {
+	static IJson valueOf( boolean value ) {
 		return value
 			? TRUE
 			: FALSE;
@@ -41,5 +41,13 @@ public final class JsonBoolean
 		return booleanValue()
 			? "true"
 			: "false";
+	}
+
+	@Override
+	public int compareTo( IJson other ) {
+		if ( other.getClass() != JsonBoolean.class ) {
+			return -1;
+		}
+		return Boolean.valueOf( booleanValue() ).compareTo( ( (JsonBoolean) other ).booleanValue() );
 	}
 }

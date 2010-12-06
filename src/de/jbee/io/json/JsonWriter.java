@@ -22,7 +22,7 @@ public class JsonWriter
 
 	@Override
 	public void process( Number value ) {
-		out.append( new JsonNumber( value ).toString() );
+		out.append( Json.valueOf( value ).toString() );
 	}
 
 	@Override

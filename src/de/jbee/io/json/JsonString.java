@@ -5,9 +5,15 @@ public final class JsonString
 
 	private final String value;
 
-	public JsonString( String value ) {
+	private JsonString( String value ) {
 		super();
 		this.value = value;
+	}
+
+	static IJson valueOf( String value ) {
+		return value == null
+			? Json.NULL
+			: new JsonString( value );
 	}
 
 	@Override
@@ -71,4 +77,21 @@ public final class JsonString
 		}
 	}
 
+	@Override
+	public int compareTo( IJson other ) {
+		if ( other.getClass() != JsonString.class ) {
+			return -1;
+		}
+		return ( (JsonString) other ).value.compareTo( value );
+	}
+
+	@Override
+	public boolean equals( Object obj ) {
+		return obj instanceof JsonString && ( (JsonString) obj ).value.equals( value );
+	}
+
+	@Override
+	public int hashCode() {
+		return value.hashCode();
+	}
 }
