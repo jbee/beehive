@@ -1,6 +1,6 @@
 package de.jbee.io.json.filter;
 
-import de.jbee.io.IProcessableUnit;
+import de.jbee.io.IProcessableElement;
 import de.jbee.io.json.IJsonProcessor;
 import de.jbee.io.json.JsonType;
 import de.jbee.io.property.IPropertySelector;
@@ -25,22 +25,22 @@ public class JsonFilter
 	}
 
 	@Override
-	public void process( JsonType type, String name, final IProcessableUnit<IJsonProcessor> unit ) {
+	public void process( JsonType type, String name, final IProcessableElement<IJsonProcessor> element ) {
 		final PropertyPath memberPath = path.child( name );
 		if ( !selector.selects( memberPath ) ) {
-			unit.discardBy( processor );
+			element.discardBy( processor );
 			return;
 		}
-		processor.process( type, name, new IProcessableUnit<IJsonProcessor>() {
+		processor.process( type, name, new IProcessableElement<IJsonProcessor>() {
 
 			@Override
 			public void discardBy( IJsonProcessor processor ) {
-				unit.discardBy( processor );
+				element.discardBy( processor );
 			}
 
 			@Override
 			public void processBy( IJsonProcessor processor ) {
-				unit.processBy( new JsonFilter( processor, selector, memberPath ) );
+				element.processBy( new JsonFilter( processor, selector, memberPath ) );
 			}
 		} );
 	}

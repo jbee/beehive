@@ -1,6 +1,10 @@
 package de.jbee.io;
 
-public interface ICharReader
-		extends IInputStream<Character> {
+public interface ICharReader {
 
+	char next();
+
+	char peek();
+
+	boolean hasNext();
 }

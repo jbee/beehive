@@ -1,6 +1,6 @@
 package de.jbee.io.json;
 
-public interface IJsonConverter {
+public interface IJsonValueProcessor {
 
 	// path ?
 

@@ -1,10 +1,10 @@
 package de.jbee.io.json;
 
-import de.jbee.io.IProcessableUnit;
+import de.jbee.io.IProcessableElement;
 
 public interface IJsonProcessor
-		extends IJsonConverter {
+		extends IJsonValueProcessor {
 
-	void process( JsonType type, String name, IProcessableUnit<IJsonProcessor> unit );
+	void process( JsonType type, String name, IProcessableElement<IJsonProcessor> element );
 
 }

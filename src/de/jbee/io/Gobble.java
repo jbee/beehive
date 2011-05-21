@@ -18,6 +18,8 @@ public final class Gobble {
 	private static final ICharProcessor WHITESPACE = new GobbleWhitespace();
 	private static final ICharProcessor LETTERS = new GobbleLetters();
 	private static final ICharProcessor UNICODE_STRING = new GobbleEscapedUnicodeString();
+	private static final ICharProcessor CDATA = new GobbleCDATA();
+	private static final ICharProcessor UNTIL_WHITESPACE = new GobbleUntilWhitespace();
 
 	public static ICharProcessor a( char mandatory ) {
 		return new GobbleAChar( mandatory );
@@ -47,6 +49,10 @@ public final class Gobble {
 
 	public static ICharProcessor letters() {
 		return LETTERS;
+	}
+
+	public static ICharProcessor cDATA() {
+		return CDATA;
 	}
 
 	public static ICharProcessor maybe( char optional ) {
@@ -79,6 +85,10 @@ public final class Gobble {
 
 	public static ICharProcessor until( char end ) {
 		return new GobbleUntilChar( end );
+	}
+
+	public static ICharProcessor untilWhitespace() {
+		return UNTIL_WHITESPACE;
 	}
 
 	public static ICharProcessor whitespace() {
@@ -203,6 +213,20 @@ public final class Gobble {
 		}
 	}
 
+	static final class GobbleCDATA
+			implements ICharProcessor {
+
+		@Override
+		public void process( ICharReader in ) {
+			char quote = in.peek();
+			if ( quote == '"' || quote == '\'' ) {
+				until( quote ).process( in );
+			} else {
+				untilWhitespace().process( in );
+			}
+		}
+	}
+
 	static final class GobbleEscapedUnicodeString
 			extends ExpectingCharProcessor {
 
@@ -249,7 +273,7 @@ public final class Gobble {
 
 		@Override
 		public void process( ICharReader in ) {
-			if ( in.peek() == optional ) {
+			if ( in.hasNext() && in.peek() == optional ) {
 				in.next();
 			}
 		}
@@ -335,6 +359,17 @@ public final class Gobble {
 				either.process( in );
 			} else {
 				or.process( in );
+			}
+		}
+	}
+
+	static final class GobbleUntilWhitespace
+			implements ICharProcessor {
+
+		@Override
+		public void process( ICharReader in ) {
+			while ( in.hasNext() && !Character.isWhitespace( in.peek() ) ) {
+				in.next();
 			}
 		}
 	}

@@ -1,7 +1,7 @@
 package de.jbee.io.json;
 
 import de.jbee.io.ICharWriter;
-import de.jbee.io.IProcessableUnit;
+import de.jbee.io.IProcessableElement;
 
 public class JsonWriter
 		implements IJsonProcessor {
@@ -36,8 +36,8 @@ public class JsonWriter
 	}
 
 	@Override
-	public void process( JsonType type, String name, IProcessableUnit<IJsonProcessor> unit ) {
-		unit.processBy( this );
+	public void process( JsonType type, String name, IProcessableElement<IJsonProcessor> element ) {
+		element.processBy( this );
 	}
 
 }

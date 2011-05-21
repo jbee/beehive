@@ -3,7 +3,7 @@ package de.jbee.io.json;
 import java.io.CharArrayReader;
 
 import de.jbee.io.CharReader;
-import de.jbee.io.IProcessableUnit;
+import de.jbee.io.IProcessableElement;
 
 public class JsonComposer {
 
@@ -22,7 +22,7 @@ public class JsonComposer {
 	}
 
 	public static class JsonObjectComposer<P>
-			implements IProcessableUnit<IJsonProcessor> {
+			implements IProcessableElement<IJsonProcessor> {
 
 		private final P parent;
 
@@ -99,26 +99,26 @@ public class JsonComposer {
 
 		@Override
 		public P value( final String value ) {
-			JsonProcessor.processAsUnit( processor, name, value );
+			JsonProcessor.processAsElement( processor, name, value );
 			return parent;
 		}
 
 		@Override
 		public P value( final Number value ) {
-			JsonProcessor.processAsUnit( processor, name, value );
+			JsonProcessor.processAsElement( processor, name, value );
 			return parent;
 		}
 
 		@Override
 		public P value( final Boolean value ) {
-			JsonProcessor.processAsUnit( processor, name, value );
+			JsonProcessor.processAsElement( processor, name, value );
 			return parent;
 		}
 
 	}
 
 	public static class JsonArrayComposer<P>
-			implements IJsonComposer<JsonArrayComposer<P>>, IProcessableUnit<IJsonProcessor> {
+			implements IJsonComposer<JsonArrayComposer<P>>, IProcessableElement<IJsonProcessor> {
 
 		private final P parent;
 

@@ -3,7 +3,7 @@ package de.jbee.io.json;
 import java.util.LinkedList;
 import java.util.List;
 
-import de.jbee.io.IProcessableUnit;
+import de.jbee.io.IProcessableElement;
 import de.jbee.io.json.JsonObject.JsonMember;
 
 public abstract class JsonBuilder
@@ -19,9 +19,9 @@ public abstract class JsonBuilder
 		private final List<IJson> elements = new LinkedList<IJson>();
 
 		@Override
-		public void process( JsonType type, String name, IProcessableUnit<IJsonProcessor> unit ) {
+		public void process( JsonType type, String name, IProcessableElement<IJsonProcessor> element ) {
 			JsonBuilder builder = forType( type );
-			unit.processBy( builder );
+			element.processBy( builder );
 			elements.add( builder.build() );
 		}
 
@@ -37,7 +37,7 @@ public abstract class JsonBuilder
 		private IJson value;
 
 		@Override
-		public void process( JsonType type, String name, IProcessableUnit<IJsonProcessor> unit ) {
+		public void process( JsonType type, String name, IProcessableElement<IJsonProcessor> element ) {
 			throwBuildException();
 		}
 
@@ -74,9 +74,9 @@ public abstract class JsonBuilder
 		private final List<JsonMember> members = new LinkedList<JsonMember>();
 
 		@Override
-		public void process( JsonType type, String name, IProcessableUnit<IJsonProcessor> unit ) {
+		public void process( JsonType type, String name, IProcessableElement<IJsonProcessor> element ) {
 			JsonBuilder builder = forType( type );
-			unit.processBy( builder );
+			element.processBy( builder );
 			members.add( new JsonMember( name, builder.build() ) );
 		}
 
@@ -98,7 +98,7 @@ public abstract class JsonBuilder
 	/**
 	 * Necessary because we cannot know what type of json will be processed first later when a fresh
 	 * builder is used. Therefore this builder delays creation of real root until we get to know by
-	 * call to {@link #process(JsonType, String, IProcessableUnit)}. This is transparent to the
+	 * call to {@link #process(JsonType, String, IProcessableElement)}. This is transparent to the
 	 * user.
 	 * 
 	 * In fact the {@linkplain RootJsonBuilder} can be used multiple times in sequence for different
@@ -112,9 +112,9 @@ public abstract class JsonBuilder
 		private JsonBuilder rootBuilder;
 
 		@Override
-		public void process( JsonType type, String name, IProcessableUnit<IJsonProcessor> unit ) {
+		public void process( JsonType type, String name, IProcessableElement<IJsonProcessor> element ) {
 			rootBuilder = forType( type );
-			unit.processBy( rootBuilder );
+			element.processBy( rootBuilder );
 		}
 
 		@Override

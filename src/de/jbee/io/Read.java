@@ -4,9 +4,12 @@ import java.util.InputMismatchException;
 
 public final class Read {
 
-	private static final ReadEscapedUnicodeString UNICODE_STRING = new ReadEscapedUnicodeString();
+	private static final ICharScanner<ICharWriter> UNICODE_STRING = new ReadEscapedUnicodeString();
 
-	static final ICharScanner<ICharWriter> DIGITS = new ReadDigits();
+	public static final ICharScanner<ICharWriter> CDDATA = new ReadCDATA();
+	public static final ICharScanner<ICharWriter> DIGITS = new ReadDigits();
+	public static final ICharScanner<ICharWriter> LETTERS = new ReadLetters();
+	public static final ICharScanner<ICharWriter> UNTIL_WHITESPACE = new ReadUntilWhitespace();
 
 	public static ICharScanner<ICharWriter> next( int n ) {
 		return new ReadN( n );
@@ -18,8 +21,16 @@ public final class Read {
 		return out.toString();
 	}
 
+	public static ICharScanner<ICharWriter> until( char endExclusive ) {
+		return new ReadUntilCharacter( endExclusive );
+	}
+
 	public static ICharScanner<ICharWriter> unicode() {
 		return UNICODE_STRING;
+	}
+
+	public static ICharScanner<ICharWriter> letterOrUniverse( String universe ) {
+		return new ReadLetterOrUniverse( universe );
 	}
 
 	public static ICharScanner<ICharWriter> universe( String universe ) {
@@ -64,6 +75,51 @@ public final class Read {
 			if ( in.peek() == separator ) {
 				Gobble.a( separator ).process( in );
 				scanElement( in, out );
+			}
+		}
+	}
+
+	static final class ReadCDATA
+			implements ICharScanner<ICharWriter> {
+
+		@Override
+		public void scan( ICharReader in, ICharWriter out ) {
+			char quote = in.peek();
+			if ( quote == '"' || quote == '\'' ) {
+				until( quote ).scan( in, out );
+				Gobble.a( quote ).process( in );
+			} else {
+				UNTIL_WHITESPACE.scan( in, out );
+			}
+
+		}
+	}
+
+	static final class ReadUntilCharacter
+			implements ICharScanner<ICharWriter> {
+
+		final char endExclusive;
+
+		ReadUntilCharacter( char endExclusive ) {
+			super();
+			this.endExclusive = endExclusive;
+		}
+
+		@Override
+		public void scan( ICharReader in, ICharWriter out ) {
+			while ( in.hasNext() && in.peek() != endExclusive ) {
+				out.append( in.next() );
+			}
+		}
+	}
+
+	static final class ReadUntilWhitespace
+			implements ICharScanner<ICharWriter> {
+
+		@Override
+		public void scan( ICharReader in, ICharWriter out ) {
+			while ( in.hasNext() && !Character.isWhitespace( in.peek() ) ) {
+				out.append( in.next() );
 			}
 		}
 	}
@@ -168,6 +224,25 @@ public final class Read {
 		}
 	}
 
+	static final class ReadLetterOrUniverse
+			implements ICharScanner<ICharWriter> {
+
+		private final String universe;
+
+		ReadLetterOrUniverse( String universe ) {
+			super();
+			this.universe = universe;
+		}
+
+		@Override
+		public void scan( ICharReader in, ICharWriter out ) {
+			while ( in.hasNext()
+					&& ( Character.isLetter( in.peek() ) || universe.indexOf( in.peek() ) >= 0 ) ) {
+				out.append( in.next() );
+			}
+		}
+	}
+
 	static final class ReadUniverse
 			implements ICharScanner<ICharWriter> {
 
@@ -185,4 +260,5 @@ public final class Read {
 			}
 		}
 	}
+
 }

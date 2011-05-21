@@ -20,13 +20,25 @@ public final class CharScanner {
 		return combine( combine( of( open ), content ), of( close ) );
 	}
 
-	public static <T> IProcessableUnit<T> processable( ICharReader in,
+	public static <T> IProcessableElement<T> processable( ICharReader in,
 			ICharScanner<? super T> processing, ICharScanner<? super T> discarding ) {
-		return new UnitAdapter<T>( in, processing, discarding );
+		return new ElementAdapter<T>( in, processing, discarding );
+	}
+
+	public static <T> ICharScanner<T> trimming( ICharScanner<T> scanner ) {
+		return new TrimmingScanner<T>( scanner );
 	}
 
 	private CharScanner() {
 		// util
+	}
+
+	public static abstract class UtilisedCharScanner<T>
+			implements ICharScanner<T> {
+
+		protected final void once( ICharProcessor processor, ICharReader in ) {
+			processor.process( in );
+		}
 	}
 
 	static final class AppendableAdapter
@@ -43,6 +55,25 @@ public final class CharScanner {
 		public void scan( ICharReader in, Appendable out ) {
 			scanner.scan( in, CharWriter.of( out ) );
 		}
+	}
+
+	static final class TrimmingScanner<T>
+			implements ICharScanner<T> {
+
+		private final ICharScanner<T> scanner;
+
+		TrimmingScanner( ICharScanner<T> scanner ) {
+			super();
+			this.scanner = scanner;
+		}
+
+		@Override
+		public void scan( ICharReader in, T out ) {
+			Gobble.whitespace().process( in );
+			scanner.scan( in, out );
+			Gobble.whitespace().process( in );
+		}
+
 	}
 
 	static final class ChainCharScanner<T>
@@ -79,14 +110,14 @@ public final class CharScanner {
 		}
 	}
 
-	static final class UnitAdapter<T>
-			implements IProcessableUnit<T> {
+	static final class ElementAdapter<T>
+			implements IProcessableElement<T> {
 
 		private final ICharReader in;
 		private final ICharScanner<? super T> processing;
 		private final ICharScanner<? super T> discarding;
 
-		UnitAdapter( ICharReader in, ICharScanner<? super T> processing,
+		ElementAdapter( ICharReader in, ICharScanner<? super T> processing,
 				ICharScanner<? super T> discarding ) {
 			super();
 			this.in = in;

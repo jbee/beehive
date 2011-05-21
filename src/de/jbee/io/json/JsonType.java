@@ -7,6 +7,7 @@ import de.jbee.io.ICharProcessor;
 import de.jbee.io.ICharReader;
 import de.jbee.io.ICharScanner;
 import de.jbee.io.Read;
+import de.jbee.io.CharScanner.UtilisedCharScanner;
 
 public enum JsonType
 		implements ICharScanner<IJsonProcessor>, ICharProcessor {
@@ -25,20 +26,20 @@ public enum JsonType
 
 	static {
 		for ( JsonType type : values() ) {
-			for ( char opener : type.openUniverse.toCharArray() ) {
+			for ( char opener : type.openingUniverse.toCharArray() ) {
 				TYPE_LOOKUP[opener - OPENER_OFFSET] = type;
 			}
 		}
 	}
 
-	private final String openUniverse;
+	private final String openingUniverse;
 	private final ICharProcessor gobbler;
 	private final ICharScanner<IJsonProcessor> scanner;
 
-	private JsonType( String openUniverse, ICharScanner<IJsonProcessor> scanner,
+	private JsonType( String openingUniverse, ICharScanner<IJsonProcessor> scanner,
 			ICharProcessor gobbler ) {
 		this.gobbler = gobbler;
-		this.openUniverse = openUniverse;
+		this.openingUniverse = openingUniverse;
 		this.scanner = scanner;
 	}
 
@@ -75,15 +76,15 @@ public enum JsonType
 	}
 
 	static final class JsonMemberScanner
-			implements ICharScanner<IJsonProcessor> {
+			extends UtilisedCharScanner<IJsonProcessor> {
 
 		@Override
 		public void scan( ICharReader in, IJsonProcessor out ) {
-			Gobble.whitespace().process( in );
+			once( Gobble.whitespace(), in );
 			String name = Read.toString( in, Read.unicode() );
-			Gobble.aWhitespaced( ':' ).process( in );
+			once( Gobble.aWhitespaced( ':' ), in );
 			JsonParser.getInstance( name ).scan( in, out );
-			Gobble.whitespace().process( in );
+			once( Gobble.whitespace(), in );
 		}
 	}
 
@@ -106,11 +107,11 @@ public enum JsonType
 	}
 
 	static final class JsonNullScanner
-			implements ICharScanner<IJsonProcessor> {
+			extends UtilisedCharScanner<IJsonProcessor> {
 
 		@Override
 		public void scan( ICharReader in, IJsonProcessor out ) {
-			Gobble.just( "null" ).process( in );
+			once( Gobble.just( "null" ), in );
 			out.processNull();
 		}
 	}

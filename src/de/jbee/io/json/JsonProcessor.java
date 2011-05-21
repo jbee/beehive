@@ -1,7 +1,7 @@
 package de.jbee.io.json;
 
-import de.jbee.io.IProcessableUnit;
-import de.jbee.io.IProcessableUnit.NoopDiscardingProcessableUnit;
+import de.jbee.io.IProcessableElement;
+import de.jbee.io.IProcessableElement.NoopDiscardingProcessableElement;
 
 public final class JsonProcessor {
 
@@ -9,36 +9,36 @@ public final class JsonProcessor {
 		// util
 	}
 
-	private static final IProcessableUnit<IJsonProcessor> NULL = new ProcessJsonNull();
+	private static final IProcessableElement<IJsonProcessor> NULL = new ProcessJsonNull();
 
-	public static IProcessableUnit<IJsonProcessor> unit( String value ) {
+	public static IProcessableElement<IJsonProcessor> element( String value ) {
 		return value == null
 			? NULL
 			: new ProcessJsonString( value );
 	}
 
-	public static IProcessableUnit<IJsonProcessor> unit( Number value ) {
+	public static IProcessableElement<IJsonProcessor> element( Number value ) {
 		return value == null
 			? NULL
 			: new ProcessJsonNumber( value );
 	}
 
-	public static IProcessableUnit<IJsonProcessor> unit( Boolean value ) {
+	public static IProcessableElement<IJsonProcessor> element( Boolean value ) {
 		return value == null
 			? NULL
 			: new ProcessJsonBoolean( value );
 	}
 
-	public static void processAsUnit( IJsonProcessor processor, String name, String value ) {
-		processor.process( type( JsonType.STRING, value ), name, unit( value ) );
+	public static void processAsElement( IJsonProcessor processor, String name, String value ) {
+		processor.process( type( JsonType.STRING, value ), name, element( value ) );
 	}
 
-	public static void processAsUnit( IJsonProcessor processor, String name, Number value ) {
-		processor.process( type( JsonType.NUMBER, value ), name, unit( value ) );
+	public static void processAsElement( IJsonProcessor processor, String name, Number value ) {
+		processor.process( type( JsonType.NUMBER, value ), name, element( value ) );
 	}
 
-	public static void processAsUnit( IJsonProcessor processor, String name, Boolean value ) {
-		processor.process( type( JsonType.BOOLEAN, value ), name, unit( value ) );
+	public static void processAsElement( IJsonProcessor processor, String name, Boolean value ) {
+		processor.process( type( JsonType.BOOLEAN, value ), name, element( value ) );
 	}
 
 	private static JsonType type( JsonType type, Object value ) {
@@ -48,7 +48,7 @@ public final class JsonProcessor {
 	}
 
 	static final class ProcessJsonString
-			extends NoopDiscardingProcessableUnit<IJsonProcessor> {
+			extends NoopDiscardingProcessableElement<IJsonProcessor> {
 
 		private final String value;
 
@@ -64,7 +64,7 @@ public final class JsonProcessor {
 	}
 
 	static final class ProcessJsonNumber
-			extends NoopDiscardingProcessableUnit<IJsonProcessor> {
+			extends NoopDiscardingProcessableElement<IJsonProcessor> {
 
 		private final Number value;
 
@@ -80,7 +80,7 @@ public final class JsonProcessor {
 	}
 
 	static final class ProcessJsonBoolean
-			extends NoopDiscardingProcessableUnit<IJsonProcessor> {
+			extends NoopDiscardingProcessableElement<IJsonProcessor> {
 
 		private final Boolean value;
 
@@ -96,7 +96,7 @@ public final class JsonProcessor {
 	}
 
 	static final class ProcessJsonNull
-			extends NoopDiscardingProcessableUnit<IJsonProcessor> {
+			extends NoopDiscardingProcessableElement<IJsonProcessor> {
 
 		@Override
 		public void processBy( IJsonProcessor processor ) {

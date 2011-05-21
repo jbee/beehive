@@ -23,7 +23,7 @@ public class CharReader
 	}
 
 	@Override
-	public Character next() {
+	public char next() {
 		return in.next();
 	}
 
@@ -38,7 +38,7 @@ public class CharReader
 	}
 
 	@Override
-	public Character peek() {
+	public char peek() {
 		return in.peek();
 	}
 
@@ -51,7 +51,7 @@ public class CharReader
 	}
 
 	static final class ReaderAdapter
-			implements IInputStream<Character>, ICharReader {
+			implements ICharReader {
 
 		private final Reader reader;
 
@@ -71,14 +71,14 @@ public class CharReader
 		}
 
 		@Override
-		public Character next() {
+		public char next() {
 			readAheadIfNeeded();
 			ahead = false;
 			return (char) token;
 		}
 
 		@Override
-		public Character peek() {
+		public char peek() {
 			readAheadIfNeeded();
 			return (char) token;
 		}

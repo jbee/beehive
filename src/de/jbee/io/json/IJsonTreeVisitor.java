@@ -1,7 +1,7 @@
 package de.jbee.io.json;
 
 public interface IJsonTreeVisitor
-		extends IJsonConverter {
+		extends IJsonValueProcessor {
 
 	void visitMember( String name, IJson value );
 
