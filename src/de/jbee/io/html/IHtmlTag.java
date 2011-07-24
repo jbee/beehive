@@ -8,4 +8,5 @@ public interface IHtmlTag
 
 	String name();
 
+	HtmlTagType getType();
 }

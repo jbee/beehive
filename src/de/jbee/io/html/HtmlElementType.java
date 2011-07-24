@@ -9,13 +9,8 @@ import de.jbee.io.Read;
 public enum HtmlElementType
 		implements ICharScanner<IHtmlProcessor> {
 
-	EMPTY( new HtmlEmptyElementScanner( null ) ),
-	INLINE( new HtmlInlineElementScanner( null ) ),
-	BLOCK( new HtmlBlockElementScanner( null ) ),
-	/**
-	 * Is a {@link #INLINE} or {@link #BLOCK} depending on its parent.
-	 */
-	AUTO( new HtmlInlineOrBlockElementScanner( null ) ),
+	CONFIGURATION_TAG( new HtmlElementScanner( null ) ),
+	PRESENTATION_TAG( new HtmlElementScanner( null ) ),
 	DOCTYPE( CharScanner.of( Gobble.just( "!DOCTYPE" ) ) ),
 	COMMENT( CharScanner.of( Gobble.until( '>' ) ) ), ;
 
@@ -29,7 +24,7 @@ public enum HtmlElementType
 		scanner.scan( in, out );
 	}
 
-	static abstract class HtmlElementScanner
+	static class HtmlElementScanner
 			implements ICharScanner<IHtmlProcessor> {
 
 		private final IHtmlTag tag;
@@ -54,46 +49,7 @@ public enum HtmlElementType
 			scan( tag, in, out );
 		}
 
-		protected abstract void scan( IHtmlTag tag, ICharReader in, IHtmlProcessor out );
-	}
-
-	static final class HtmlEmptyElementScanner
-			extends HtmlElementScanner {
-
-		HtmlEmptyElementScanner( IHtmlTag tag ) {
-			super( tag );
-		}
-
-		@Override
-		public void scan( IHtmlTag tag, ICharReader in, IHtmlProcessor out ) {
-			Gobble.maybe( '/' ).process( in );
-			Gobble.a( '>' ).process( in );
-		}
-	}
-
-	static final class HtmlBlockElementScanner
-			extends HtmlElementScanner {
-
-		HtmlBlockElementScanner( IHtmlTag tag ) {
-			super( tag );
-		}
-
-		@Override
-		public void scan( IHtmlTag tag, ICharReader in, IHtmlProcessor out ) {
-			// TODO Auto-generated method stub
-
-		}
-	}
-
-	static final class HtmlInlineElementScanner
-			extends HtmlElementScanner {
-
-		HtmlInlineElementScanner( IHtmlTag tag ) {
-			super( tag );
-		}
-
-		@Override
-		public void scan( IHtmlTag tag, ICharReader in, IHtmlProcessor out ) {
+		private void scan( IHtmlTag tag, ICharReader in, IHtmlProcessor out ) {
 			boolean empty = in.peek() == '/';
 			Gobble.maybe( '/' ).process( in );
 			Gobble.a( '>' ).process( in );
@@ -105,20 +61,6 @@ public enum HtmlElementType
 			Gobble.just( tag.name() );
 			Gobble.a( '>' ).process( in );
 		}
-
 	}
 
-	static final class HtmlInlineOrBlockElementScanner
-			extends HtmlElementScanner {
-
-		HtmlInlineOrBlockElementScanner( IHtmlTag tag ) {
-			super( tag );
-		}
-
-		@Override
-		public void scan( IHtmlTag tag, ICharReader in, IHtmlProcessor out ) {
-			// TODO Auto-generated method stub
-
-		}
-	}
 }

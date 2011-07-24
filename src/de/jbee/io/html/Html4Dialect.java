@@ -1,7 +1,12 @@
 package de.jbee.io.html;
 
-import static de.jbee.io.html.HtmlElementType.AUTO;
-import static de.jbee.io.html.HtmlElementType.EMPTY;
+import static de.jbee.io.html.HtmlLayoutType.BLOCK;
+import static de.jbee.io.html.HtmlLayoutType.INLINE;
+import static de.jbee.io.html.HtmlLayoutType.INLINE_OR_BLOCK;
+import static de.jbee.io.html.HtmlLayoutType.NONE;
+import static de.jbee.io.html.HtmlTagType.ALWAYS_EMPTY;
+import static de.jbee.io.html.HtmlTagType.MAYBE_EMPTY;
+import static de.jbee.io.html.HtmlTagType.NEVER_EMPTY;
 import de.jbee.io.ICharReader;
 
 public enum Html4Dialect
@@ -16,7 +21,7 @@ public enum Html4Dialect
 
 	// Text, Tags,	Tags, to, adjust, text, on, your, Web, page,.	 	 	 	 	 	 
 	p,
-	br( EMPTY ),
+	br( ALWAYS_EMPTY, BLOCK ),
 	b,
 	i,
 	s,
@@ -27,7 +32,7 @@ public enum Html4Dialect
 	// Link, Tags,	Tags, to, adjust, text, on, your, Web, page,.	 	 	 	 	 	 
 	a,
 
-	base( EMPTY ),
+	base( ALWAYS_EMPTY, NONE ),
 
 	// List, Tags,	Tags, to, create, lists, on, your, Web, page,.	 	 	 	 	 	 
 	ul,
@@ -46,8 +51,8 @@ public enum Html4Dialect
 	tt,
 	div,
 	span,
-	del( AUTO ),
-	ins( AUTO ),
+	del( NEVER_EMPTY, INLINE_OR_BLOCK ),
+	ins( NEVER_EMPTY, INLINE_OR_BLOCK ),
 	em,
 	strong,
 	h1,
@@ -56,7 +61,7 @@ public enum Html4Dialect
 	h4,
 	h5,
 	h6,
-	hr( EMPTY ),
+	hr( ALWAYS_EMPTY, BLOCK ),
 	kbd,
 	pre,
 	samp,
@@ -65,22 +70,22 @@ public enum Html4Dialect
 	var,
 
 	//Image, Tags,	Tags, that, generate, images,.	 	 	 	 	 	 
-	img( EMPTY ),
+	img( ALWAYS_EMPTY, INLINE ),
 	map,
-	area( EMPTY ),
+	area( ALWAYS_EMPTY ),
 
 	//Quotation, Tags,	Tags, that, define, quotations,.	 	 	 	 	 	 
 	blockquote,
-	q,
+	q( INLINE ),
 	cite,
 
 	//Form, Tags,	Tags, that, create, and, define, HTML, forms,.	 	 	 	 	 	 
 	form,
-	button( AUTO ),
-	input( EMPTY ),
+	button( INLINE_OR_BLOCK ),
+	input( ALWAYS_EMPTY ),
 	select,
 	option,
-	textarea( AUTO ),
+	textarea,
 	fieldset,
 	label,
 	legend,
@@ -101,44 +106,61 @@ public enum Html4Dialect
 	tfoot,
 	thead,
 	caption,
-	col( EMPTY ),
+	col( ALWAYS_EMPTY ),
 	colgroup,
 
 	//Object, Tags,	Tags, that, manipulate, objects, and, multimedia,.	 	 	 	 	 	 
 	object,
-	param( EMPTY ),
-	script( AUTO ),
+	param( ALWAYS_EMPTY ),
+	script( MAYBE_EMPTY ),
 	noscript,
 
 	//Style, Tags,	Tags, that, style, the, contents, or, work, with, style, sheets,.	 	 	 	 	 	 
 	style,
-	link( EMPTY ),
+	link( ALWAYS_EMPTY ),
 
 	//Meta, Tags,	Tags, that, define, meta, data,.	 	 	 	 	 	 
-	meta( EMPTY ),
+	meta( ALWAYS_EMPTY ),
 
 	//International, Tags,	Tags, that, work, with, the, language, of, the, document,.	 	 	 	 	 	 
 	bdo,
 
 	;
 
-	private final HtmlElementType type;
+	private final HtmlTagType type;
+	private final HtmlElementType elementType;
+	private final HtmlLayoutType layoutType;
 
 	Html4Dialect() {
-		this( HtmlElementType.BLOCK );
+		this( HtmlTagType.NEVER_EMPTY, HtmlLayoutType.BLOCK );
 	}
 
-	Html4Dialect( HtmlElementType type ) {
+	Html4Dialect( HtmlLayoutType layoutType ) {
+		this( HtmlTagType.NEVER_EMPTY, layoutType );
+	}
+
+	Html4Dialect( HtmlTagType type ) {
+		this( type, HtmlLayoutType.BLOCK );
+	}
+
+	Html4Dialect( HtmlTagType type, HtmlLayoutType layoutType ) {
+		this( type, HtmlElementType.PRESENTATION_TAG, layoutType );
+	}
+
+	Html4Dialect( HtmlTagType type, HtmlElementType elementType, HtmlLayoutType layoutType ) {
 		this.type = type;
+		this.elementType = elementType;
+		this.layoutType = layoutType;
 	}
 
-	public HtmlElementType getType() {
+	@Override
+	public HtmlTagType getType() {
 		return type;
 	}
 
 	@Override
 	public void scan( ICharReader in, IHtmlProcessor out ) {
-		getType().scan( in, out );
+		elementType.scan( in, out ); //FIXME use a specific scanner for this tags name
 	}
 
 	/**
