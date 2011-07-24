@@ -6,6 +6,7 @@ public final class Read {
 
 	private static final ICharScanner<ICharWriter> UNICODE_STRING = new ReadEscapedUnicodeString();
 
+	public static final ICharScanner<ICharWriter> LINE = until( '\n' );
 	public static final ICharScanner<ICharWriter> CDDATA = new ReadCDATA();
 	public static final ICharScanner<ICharWriter> DIGITS = new ReadDigits();
 	public static final ICharScanner<ICharWriter> LETTERS = new ReadLetters();
@@ -15,9 +16,14 @@ public final class Read {
 		return new ReadN( n );
 	}
 
+	public static void toBuffer( ICharReader in, StringBuilder out,
+			ICharScanner<ICharWriter> scanner ) {
+		CharScanner.appending( scanner ).scan( in, out );
+	}
+
 	public static String toString( ICharReader in, ICharScanner<ICharWriter> scanner ) {
 		StringBuilder out = new StringBuilder();
-		CharScanner.of( scanner ).scan( in, out );
+		toBuffer( in, out, scanner );
 		return out.toString();
 	}
 

@@ -38,7 +38,7 @@ public final class JsonParser
 		return INSTANCE;
 	}
 
-	public static ICharScanner<IJsonProcessor> getInstance( String name ) {
+	public static ICharScanner<IJsonProcessor> yieldInstance( String name ) {
 		return name == null
 			? INSTANCE
 			: newInstance( name );

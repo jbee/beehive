@@ -83,7 +83,7 @@ public enum JsonType
 			once( Gobble.whitespace(), in );
 			String name = Read.toString( in, Read.unicode() );
 			once( Gobble.aWhitespaced( ':' ), in );
-			JsonParser.getInstance( name ).scan( in, out );
+			JsonParser.yieldInstance( name ).scan( in, out );
 			once( Gobble.whitespace(), in );
 		}
 	}

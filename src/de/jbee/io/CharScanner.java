@@ -11,7 +11,7 @@ public final class CharScanner {
 		return new ProcessorVoidAdapter( out );
 	}
 
-	public static ICharScanner<Appendable> of( ICharScanner<ICharWriter> scanner ) {
+	public static ICharScanner<Appendable> appending( ICharScanner<ICharWriter> scanner ) {
 		return new AppendableAdapter( scanner );
 	}
 

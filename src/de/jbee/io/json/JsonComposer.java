@@ -79,7 +79,7 @@ public class JsonComposer {
 		}
 
 		public P parse( String json ) {
-			JsonParser.getInstance( name ).scan(
+			JsonParser.yieldInstance( name ).scan(
 					CharReader.of( new CharArrayReader( json.toCharArray() ) ), processor );
 			return parent;
 		}
