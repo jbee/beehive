@@ -9,6 +9,8 @@ import de.jbee.io.Read;
 public class HtmlParser
 		implements ICharScanner<IHtmlProcessor> {
 
+	//TODO generalize to XML/ML so that xhtml or other xml documents can be parsed as well 
+
 	@Override
 	public void scan( ICharReader in, IHtmlProcessor out ) {
 		Gobble.whitespace();

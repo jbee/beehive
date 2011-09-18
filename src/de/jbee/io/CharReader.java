@@ -46,6 +46,11 @@ public class CharReader
 		return Read.toString( in, s );
 	}
 
+	@Override
+	public CharReader reread( int count ) {
+		return new CharReader( in.reread( count ) );
+	}
+
 	public CharReader twice( ICharProcessor p ) {
 		return once( p ).once( p );
 	}
@@ -104,6 +109,12 @@ public class CharReader
 
 		private boolean tokenAvailable() {
 			return token != -1;
+		}
+
+		@Override
+		public ICharReader reread( int count ) {
+			// TODO Auto-generated method stub
+			return null;
 		}
 
 	}

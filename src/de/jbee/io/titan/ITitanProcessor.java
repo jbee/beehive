@@ -11,7 +11,7 @@ public interface ITitanProcessor {
 
 	void process( int type, String args, IProcessableElement<ITitanProcessor> element );
 
-	// XXX und der text ? 2. process methode ?
+	// OPEN und der text ? 2. process methode ?
 	void process( String plaintext );
 
 	// inline extra ?????

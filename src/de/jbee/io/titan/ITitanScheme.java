@@ -22,7 +22,7 @@ public interface ITitanScheme {
 
 	//
 	//
-	//XXX Eine simple Parser-API und als ein Prozessor (Empfänger) dann eine Impl. die daraus den Baum baut der durch die entsprechenden element beschrieben wird.
+	//OPEN Eine simple Parser-API und als ein Prozessor (Empfänger) dann eine Impl. die daraus den Baum baut der durch die entsprechenden element beschrieben wird.
 
 	// --------> Zwischensprache nötig, die alles bereits beschreiben kann - geht das ? passt das ?
 
