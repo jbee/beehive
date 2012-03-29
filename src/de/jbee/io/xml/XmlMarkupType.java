@@ -4,11 +4,11 @@ import de.jbee.io.Gobble;
 import de.jbee.io.ICharProcessor;
 import de.jbee.io.ICharReader;
 import de.jbee.io.ICharScanner;
-import de.jbee.io.IProcessableElement;
+import de.jbee.io.ProcessableBy;
 import de.jbee.io.html.IHtmlTag;
 
 public enum XmlMarkupType
-		implements ICharScanner<IXmlProcessor>, ICharProcessor, IProcessableElement<IXmlProcessor> {
+		implements ICharScanner<IXmlProcessor>, ICharProcessor, ProcessableBy<IXmlProcessor> {
 
 	XML_DECLARATION(),
 	PROCESSING_INSTRUCTION,

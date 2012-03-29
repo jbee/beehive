@@ -19,7 +19,7 @@ public class HtmlParser
 			// TODO comment or doctype
 		}
 		IHtmlTag tag = out.dialect().tag( Read.toString( in, Read.LETTERS ) );
-		out.process( tag, CharScanner.processable( in, tag, CharScanner.of( tag ) ) );
+		out.process( tag, CharScanner.processing( in, tag, CharScanner.of( tag ) ) );
 	}
 
 }

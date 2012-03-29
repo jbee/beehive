@@ -32,7 +32,7 @@ public enum HtmlAttrType
 				final IHtmlAttr attr = out.dialect().attr(
 						Read.toString( in, Read.letterOrUniverse( "-" ) ) );
 				Gobble.a( '=' ).process( in );
-				out.process( attr, CharScanner.processable( in, new HtmlAttributeScanner( attr ),
+				out.process( attr, CharScanner.processing( in, new HtmlAttributeScanner( attr ),
 						CharScanner.of( Gobble.cDATA() ) ) );
 				c = in.peek();
 			}

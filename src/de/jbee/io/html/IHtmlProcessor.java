@@ -1,14 +1,14 @@
 package de.jbee.io.html;
 
-import de.jbee.io.IProcessableElement;
+import de.jbee.io.ProcessableBy;
 
 public interface IHtmlProcessor {
 
 	IHtmlDialect dialect();
 
-	void process( IHtmlTag tag, IProcessableElement<IHtmlProcessor> element );
+	void process( IHtmlTag tag, ProcessableBy<IHtmlProcessor> element );
 
-	void process( IHtmlAttr attr, IProcessableElement<IHtmlProcessor> element );
+	void process( IHtmlAttr attr, ProcessableBy<IHtmlProcessor> element );
 
 	void process( IHtmlAttr attr, String value );
 }
