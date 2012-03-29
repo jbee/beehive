@@ -20,7 +20,7 @@ public final class CharScanner {
 		return combine( combine( of( open ), content ), of( close ) );
 	}
 
-	public static <T> IProcessableElement<T> processable( ICharReader in,
+	public static <T> ProcessableBy<T> processing( ICharReader in,
 			ICharScanner<? super T> processing, ICharScanner<? super T> discarding ) {
 		return new ElementAdapter<T>( in, processing, discarding );
 	}
@@ -111,7 +111,7 @@ public final class CharScanner {
 	}
 
 	static final class ElementAdapter<T>
-			implements IProcessableElement<T> {
+			implements ProcessableBy<T> {
 
 		private final ICharReader in;
 		private final ICharScanner<? super T> processing;
