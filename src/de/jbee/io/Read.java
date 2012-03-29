@@ -43,6 +43,7 @@ public final class Read {
 		return new CollectUniverse( universe );
 	}
 
+	//TODO split decision based on a char from collect/scan so that both can be combined independently --> see CharPredicate
 	public static CharCollector universeBranch( String universe,
 			ICharScanner<ICharWriter> contained, ICharScanner<ICharWriter> notContained ) {
 		return new CollectUniverseBranch( universe, contained, notContained );

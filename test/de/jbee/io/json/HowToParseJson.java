@@ -32,6 +32,14 @@ public class HowToParseJson {
 	}
 
 	@Test
+	public void parseFromFile()
+			throws FileNotFoundException {
+		ICharReader in = CharReader.of( new FileReader( "test/de/jbee/io/json/Test.json" ) );
+		Json obj = JSON.parse( in );
+		assertThat( obj, instanceOf( JsonObject.class ) );
+	}
+
+	@Test
 	public void testTreeBuilder()
 			throws FileNotFoundException {
 		ICharReader in = CharReader.of( new FileReader( "test/de/jbee/io/json/Test.json" ) );
@@ -46,13 +54,6 @@ public class HowToParseJson {
 		} ) );
 		Json value = treeBuilder.build();
 		System.out.println( value );
-	}
-
-	@Test
-	public void parseFromFile()
-			throws FileNotFoundException {
-		ICharReader in = CharReader.of( new FileReader( "test/de/jbee/io/json/Test.json" ) );
-		System.out.println( JSON.parse( in ) );
 	}
 
 }

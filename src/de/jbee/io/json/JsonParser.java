@@ -32,6 +32,7 @@ public final class JsonParser
 		return INSTANCE;
 	}
 
+	//OPEN instead of a String we could ask for a CharCollector for that name
 	public static ICharScanner<JsonProcessor> yieldInstance( String name ) {
 		return name == null
 			? INSTANCE

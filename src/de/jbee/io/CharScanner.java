@@ -39,6 +39,20 @@ public final class CharScanner {
 		protected final void once( ICharProcessor processor, ICharReader in ) {
 			processor.process( in );
 		}
+
+	}
+
+	public static abstract class AssembledCharScanner<T>
+			implements ICharScanner<T> {
+
+		private ICharScanner<T> assembled;
+
+		@Override
+		public void scan( ICharReader in, T out ) {
+			assembled.scan( in, out );
+		}
+
+		abstract void assemble(); //OPEN somehow offer a way to assemble the scanner in concrete classes - maybe this is also more a factory ? than we impl. that factory instead of a scanner class because that could be achieved by assembling others.
 	}
 
 	static final class AppendableAdapter
