@@ -4,26 +4,26 @@ import java.util.Arrays;
 import java.util.List;
 
 public final class JsonArray
-		implements IJson {
+		implements Json {
 
-	private final IJson[] elements;
+	private final Json[] elements;
 
-	public JsonArray( List<IJson> elements ) {
-		this( elements.toArray( new IJson[elements.size()] ) );
+	public JsonArray( List<Json> elements ) {
+		this( elements.toArray( new Json[elements.size()] ) );
 	}
 
-	public JsonArray( IJson... elements ) {
+	public JsonArray( Json... elements ) {
 		super();
 		this.elements = elements;
 	}
 
 	@Override
-	public void pass( IJsonTreeVisitor visitor ) {
+	public void pass( JsonTreeVisitor visitor ) {
 		visitor.visit( this );
 	}
 
 	@Override
-	public void passChildren( IJsonTreeVisitor visitor ) {
+	public void passChildren( JsonTreeVisitor visitor ) {
 		for ( int i = 0; i < elements.length; i++ ) {
 			visitor.visitElement( i, elements[i] );
 		}
@@ -35,11 +35,11 @@ public final class JsonArray
 	}
 
 	@Override
-	public int compareTo( IJson other ) {
+	public int compareTo( Json other ) {
 		if ( other.getClass() != JsonArray.class ) {
 			return -1;
 		}
-		final IJson[] elems = ( (JsonArray) other ).elements;
+		final Json[] elems = ( (JsonArray) other ).elements;
 		if ( elems.length != elements.length ) {
 			return Integer.signum( elements.length - elems.length );
 		}

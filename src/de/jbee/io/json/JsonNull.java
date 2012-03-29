@@ -1,7 +1,7 @@
 package de.jbee.io.json;
 
 public final class JsonNull
-		implements IJson {
+		implements Json {
 
 	static final JsonNull OBJECT = new JsonNull();
 
@@ -10,12 +10,12 @@ public final class JsonNull
 	}
 
 	@Override
-	public void pass( IJsonTreeVisitor visitor ) {
+	public void pass( JsonTreeVisitor visitor ) {
 		visitor.visit( this );
 	}
 
 	@Override
-	public void passChildren( IJsonTreeVisitor visitor ) {
+	public void passChildren( JsonTreeVisitor visitor ) {
 		visitor.processNull();
 	}
 
@@ -35,7 +35,7 @@ public final class JsonNull
 	}
 
 	@Override
-	public int compareTo( IJson other ) {
+	public int compareTo( Json other ) {
 		return other.getClass() != JsonNull.class
 			? -1
 			: 0;

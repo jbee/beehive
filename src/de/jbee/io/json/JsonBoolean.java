@@ -1,7 +1,7 @@
 package de.jbee.io.json;
 
 public final class JsonBoolean
-		implements IJson {
+		implements Json {
 
 	public static final JsonBoolean TRUE = new JsonBoolean();
 	public static final JsonBoolean FALSE = new JsonBoolean();
@@ -10,25 +10,25 @@ public final class JsonBoolean
 		// hide
 	}
 
-	static IJson valueOf( Boolean value ) {
+	static Json json( Boolean value ) {
 		return value == null
-			? Json.NULL
-			: valueOf( value.booleanValue() );
+			? JSON.NULL
+			: json( value.booleanValue() );
 	}
 
-	static IJson valueOf( boolean value ) {
+	static Json json( boolean value ) {
 		return value
 			? TRUE
 			: FALSE;
 	}
 
 	@Override
-	public void pass( IJsonTreeVisitor visitor ) {
+	public void pass( JsonTreeVisitor visitor ) {
 		visitor.visit( this );
 	}
 
 	@Override
-	public void passChildren( IJsonTreeVisitor visitor ) {
+	public void passChildren( JsonTreeVisitor visitor ) {
 		visitor.process( booleanValue() );
 	}
 
@@ -44,7 +44,7 @@ public final class JsonBoolean
 	}
 
 	@Override
-	public int compareTo( IJson other ) {
+	public int compareTo( Json other ) {
 		if ( other.getClass() != JsonBoolean.class ) {
 			return -1;
 		}

@@ -1,7 +1,7 @@
 package de.jbee.io.json;
 
 public final class JsonNumber
-		implements IJson {
+		implements Json {
 
 	private final Number value;
 
@@ -10,19 +10,19 @@ public final class JsonNumber
 		this.value = value;
 	}
 
-	static IJson valueOf( Number value ) {
+	static Json json( Number value ) {
 		return value == null
-			? Json.NULL
+			? JSON.NULL
 			: new JsonNumber( value );
 	}
 
 	@Override
-	public void pass( IJsonTreeVisitor visitor ) {
+	public void pass( JsonTreeVisitor visitor ) {
 		visitor.visit( this );
 	}
 
 	@Override
-	public void passChildren( IJsonTreeVisitor visitor ) {
+	public void passChildren( JsonTreeVisitor visitor ) {
 		visitor.process( value );
 	}
 
@@ -42,7 +42,7 @@ public final class JsonNumber
 	}
 
 	@Override
-	public int compareTo( IJson other ) {
+	public int compareTo( Json other ) {
 		if ( other.getClass() != JsonNumber.class ) {
 			return -1;
 		}

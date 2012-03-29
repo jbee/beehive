@@ -5,15 +5,15 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 public final class JsonObject
-		implements IJson {
+		implements Json {
 
 	static final class JsonMember
 			implements Serializable, Comparable<JsonMember> {
 
 		final String name;
-		final IJson value;
+		final Json value;
 
-		JsonMember( String name, IJson value ) {
+		JsonMember( String name, Json value ) {
 			super();
 			this.name = name;
 			this.value = value;
@@ -50,10 +50,10 @@ public final class JsonObject
 		this.members = members;
 	}
 
-	public static JsonObject of( Map<String, IJson> values ) {
+	public static JsonObject of( Map<String, Json> values ) {
 		JsonMember[] members = new JsonMember[values.size()];
 		int i = 0;
-		for ( Entry<String, IJson> e : values.entrySet() ) {
+		for ( Entry<String, Json> e : values.entrySet() ) {
 			members[i++] = new JsonMember( e.getKey(), e.getValue() );
 		}
 		return new JsonObject( members );
@@ -75,19 +75,19 @@ public final class JsonObject
 	}
 
 	@Override
-	public void pass( IJsonTreeVisitor visitor ) {
+	public void pass( JsonTreeVisitor visitor ) {
 		visitor.visit( this );
 	}
 
 	@Override
-	public void passChildren( IJsonTreeVisitor visitor ) {
+	public void passChildren( JsonTreeVisitor visitor ) {
 		for ( JsonMember m : members ) {
 			visitor.visitMember( m.name, m.value );
 		}
 	}
 
 	@Override
-	public int compareTo( IJson other ) {
+	public int compareTo( Json other ) {
 		if ( other.getClass() != JsonObject.class ) {
 			return -1;
 		}

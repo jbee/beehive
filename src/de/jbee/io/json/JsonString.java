@@ -1,8 +1,11 @@
 package de.jbee.io.json;
 
 public final class JsonString
-		implements IJson {
+		implements Json {
 
+	/**
+	 * The java representation of a {@link JSON} string.
+	 */
 	private final String value;
 
 	private JsonString( String value ) {
@@ -10,75 +13,31 @@ public final class JsonString
 		this.value = value;
 	}
 
-	static IJson valueOf( String value ) {
+	static Json json( String value ) {
 		return value == null
-			? Json.NULL
+			? JSON.NULL
 			: new JsonString( value );
 	}
 
 	@Override
-	public void pass( IJsonTreeVisitor visitor ) {
+	public void pass( JsonTreeVisitor visitor ) {
 		visitor.visit( this );
 	}
 
 	@Override
-	public void passChildren( IJsonTreeVisitor visitor ) {
-		visitor.process( value );
+	public void passChildren( JsonTreeVisitor visitor ) {
+		visitor.process( value ); // we don't escape to JSON-string here. The visitor decides about it because we might want to stay in java world.
 	}
 
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder( value.length() );
-		escape( value, sb );
+		JSON.escape( value, sb );
 		return sb.toString();
 	}
 
-	static String escape( String s ) {
-		StringBuilder b = new StringBuilder( s.length() );
-		escape( s, b );
-		return b.toString();
-	}
-
-	static void escape( String s, StringBuilder sb ) {
-		for ( int i = 0; i < s.length(); i++ ) {
-			sb.append( escape( s.charAt( i ) ) );
-		}
-	}
-
-	static String escape( char c ) {
-		switch ( c ) {
-			case '"':
-				return "\\\"";
-			case '\\':
-				return "\\\\";
-			case '\b':
-				return "\\b";
-			case '\f':
-				return "\\f";
-			case '\n':
-				return "\\n";
-			case '\r':
-				return "\\r";
-			case '\t':
-				return "\\t";
-			case '/':
-				return "\\/";
-			default:
-				//Reference: http://www.unicode.org/versions/Unicode5.1.0/
-				if ( ( c >= '\u0000' && c <= '\u001F' ) || ( c >= '\u007F' && c <= '\u009F' )
-						|| ( c >= '\u2000' && c <= '\u20FF' ) ) {
-					String ss = Integer.toHexString( c ).toUpperCase();
-					while ( ss.length() < 4 ) {
-						ss = '0' + ss;
-					}
-					return "\\u" + ss;
-				}
-				return String.valueOf( c );
-		}
-	}
-
 	@Override
-	public int compareTo( IJson other ) {
+	public int compareTo( Json other ) {
 		if ( other.getClass() != JsonString.class ) {
 			return -1;
 		}

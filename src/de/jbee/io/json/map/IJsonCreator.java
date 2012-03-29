@@ -1,10 +1,10 @@
 package de.jbee.io.json.map;
 
 import de.jbee.io.IProcessor;
-import de.jbee.io.json.IJsonProcessor;
+import de.jbee.io.json.JsonProcessor;
 
 public interface IJsonCreator<T> {
 
-	IJsonProcessor yieldFor( IProcessor<T> accessor, IMapping mapping );
+	JsonProcessor yieldFor( IProcessor<T> accessor, IMapping mapping );
 
 }

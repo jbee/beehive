@@ -10,11 +10,11 @@ import de.jbee.io.Read;
 import de.jbee.io.CharScanner.UtilisedCharScanner;
 
 public enum JsonType
-		implements ICharScanner<IJsonProcessor>, ICharProcessor {
+		implements ICharScanner<JsonProcessor>, ICharProcessor {
 
 	NULL( "n", new JsonNullScanner(), Gobble.letters() ),
 	BOOLEAN( "tf", new JsonBooleanScanner(), Gobble.letters() ),
-	NUMBER( "-0123456789", new JsonNumberScanner(), Gobble.universe( Json.NUMBER_UNIVERSE ) ),
+	NUMBER( "-0123456789", new JsonNumberScanner(), Gobble.universe( JSON.NUMBER_UNIVERSE ) ),
 	STRING( "\"'", new JsonStringScanner(), Gobble.unicode() ),
 	ARRAY( "[", Read.list( '[', JsonParser.getInstance(), ',', ']' ), Gobble.block( "[{", "}]",
 			"'\"", Gobble.unicode() ) ),
@@ -34,9 +34,9 @@ public enum JsonType
 
 	private final String openingUniverse;
 	private final ICharProcessor gobbler;
-	private final ICharScanner<IJsonProcessor> scanner;
+	private final ICharScanner<JsonProcessor> scanner;
 
-	private JsonType( String openingUniverse, ICharScanner<IJsonProcessor> scanner,
+	private JsonType( String openingUniverse, ICharScanner<JsonProcessor> scanner,
 			ICharProcessor gobbler ) {
 		this.gobbler = gobbler;
 		this.openingUniverse = openingUniverse;
@@ -63,7 +63,7 @@ public enum JsonType
 	}
 
 	@Override
-	public void scan( ICharReader in, IJsonProcessor out ) {
+	public void scan( ICharReader in, JsonProcessor out ) {
 		scanner.scan( in, out );
 	}
 
@@ -76,10 +76,10 @@ public enum JsonType
 	}
 
 	static final class JsonMemberScanner
-			extends UtilisedCharScanner<IJsonProcessor> {
+			extends UtilisedCharScanner<JsonProcessor> {
 
 		@Override
-		public void scan( ICharReader in, IJsonProcessor out ) {
+		public void scan( ICharReader in, JsonProcessor out ) {
 			once( Gobble.whitespace(), in );
 			String name = Read.toString( in, Read.unicode() );
 			once( Gobble.aWhitespaced( ':' ), in );
@@ -89,38 +89,38 @@ public enum JsonType
 	}
 
 	static final class JsonStringScanner
-			implements ICharScanner<IJsonProcessor> {
+			implements ICharScanner<JsonProcessor> {
 
 		@Override
-		public void scan( ICharReader in, IJsonProcessor out ) {
+		public void scan( ICharReader in, JsonProcessor out ) {
 			out.process( Read.toString( in, Read.unicode() ) );
 		}
 	}
 
 	static final class JsonNumberScanner
-			implements ICharScanner<IJsonProcessor> {
+			implements ICharScanner<JsonProcessor> {
 
 		@Override
-		public void scan( ICharReader in, IJsonProcessor out ) {
-			out.process( Json.number( Read.toString( in, Read.universe( Json.NUMBER_UNIVERSE ) ) ) );
+		public void scan( ICharReader in, JsonProcessor out ) {
+			out.process( JSON.parseNumber( Read.toString( in, Read.universe( JSON.NUMBER_UNIVERSE ) ) ) );
 		}
 	}
 
 	static final class JsonNullScanner
-			extends UtilisedCharScanner<IJsonProcessor> {
+			extends UtilisedCharScanner<JsonProcessor> {
 
 		@Override
-		public void scan( ICharReader in, IJsonProcessor out ) {
+		public void scan( ICharReader in, JsonProcessor out ) {
 			once( Gobble.just( "null" ), in );
 			out.processNull();
 		}
 	}
 
 	static final class JsonBooleanScanner
-			implements ICharScanner<IJsonProcessor> {
+			implements ICharScanner<JsonProcessor> {
 
 		@Override
-		public void scan( ICharReader in, IJsonProcessor out ) {
+		public void scan( ICharReader in, JsonProcessor out ) {
 			boolean expectTrue = in.peek() == 't';
 			Gobble.eitherOr( "true", "false" ).process( in );
 			out.process( expectTrue );

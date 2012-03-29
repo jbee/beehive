@@ -13,9 +13,9 @@ import de.jbee.io.ICharScanner;
  * @see JsonType
  */
 public final class JsonParser
-		implements ICharScanner<IJsonProcessor> {
+		implements ICharScanner<JsonProcessor> {
 
-	private static final ICharScanner<IJsonProcessor> INSTANCE = newInstance( null );
+	private static final ICharScanner<JsonProcessor> INSTANCE = newInstance( null );
 
 	private final String member;
 
@@ -24,29 +24,29 @@ public final class JsonParser
 		this.member = member;
 	}
 
-	private static ICharScanner<IJsonProcessor> newInstance( String member ) {
+	private static ICharScanner<JsonProcessor> newInstance( String member ) {
 		return CharScanner.trimming( new JsonParser( member ) );
 	}
 
-	public static IJson parse( ICharReader in ) {
-		JsonBuilder builder = JsonBuilder.newInstance();
+	public static Json parse( ICharReader in ) {
+		JsonTreeBuilder builder = JsonTreeBuilder.newInstance();
 		getInstance().scan( in, builder );
 		return builder.build();
 	}
 
-	public static ICharScanner<IJsonProcessor> getInstance() {
+	public static ICharScanner<JsonProcessor> getInstance() {
 		return INSTANCE;
 	}
 
-	public static ICharScanner<IJsonProcessor> yieldInstance( String name ) {
+	public static ICharScanner<JsonProcessor> yieldInstance( String name ) {
 		return name == null
 			? INSTANCE
 			: newInstance( name );
 	}
 
 	@Override
-	public void scan( final ICharReader in, IJsonProcessor out ) {
+	public void scan( final ICharReader in, JsonProcessor out ) {
 		final JsonType type = JsonType.starts( in.peek() );
-		out.process( type, member, CharScanner.processable( in, type, CharScanner.of( type ) ) );
+		out.process( type, member, CharScanner.processing( in, type, CharScanner.of( type ) ) );
 	}
 }

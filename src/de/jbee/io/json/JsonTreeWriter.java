@@ -3,7 +3,7 @@ package de.jbee.io.json;
 import de.jbee.io.ICharWriter;
 
 public class JsonTreeWriter
-		implements IJsonTreeVisitor {
+		implements JsonTreeVisitor {
 
 	private final ICharWriter out;
 
@@ -47,7 +47,7 @@ public class JsonTreeWriter
 	}
 
 	@Override
-	public void visitMember( String name, IJson value ) {
+	public void visitMember( String name, Json value ) {
 		out.append( name );
 		out.append( ':' );
 		value.pass( this );
@@ -55,7 +55,7 @@ public class JsonTreeWriter
 	}
 
 	@Override
-	public void visitElement( int index, IJson value ) {
+	public void visitElement( int index, Json value ) {
 		if ( index > 0 ) {
 			out.append( ',' );
 		}

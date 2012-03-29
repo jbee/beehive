@@ -1,23 +1,23 @@
 package de.jbee.io.json.filter;
 
-import de.jbee.io.IProcessableElement;
-import de.jbee.io.json.IJsonProcessor;
+import de.jbee.io.ProcessableBy;
+import de.jbee.io.json.JsonProcessor;
 import de.jbee.io.json.JsonType;
 import de.jbee.io.property.IPropertySelector;
 import de.jbee.io.property.PropertyPath;
 
 public class JsonFilter
-		implements IJsonProcessor {
+		implements JsonProcessor {
 
-	private final IJsonProcessor processor;
+	private final JsonProcessor processor;
 	private final IPropertySelector selector;
 	private final PropertyPath path;
 
-	public JsonFilter( IJsonProcessor processor, IPropertySelector selector ) {
+	public JsonFilter( JsonProcessor processor, IPropertySelector selector ) {
 		this( processor, selector, PropertyPath.NONE );
 	}
 
-	JsonFilter( IJsonProcessor processor, IPropertySelector selector, PropertyPath path ) {
+	JsonFilter( JsonProcessor processor, IPropertySelector selector, PropertyPath path ) {
 		super();
 		this.processor = processor;
 		this.selector = selector;
@@ -25,21 +25,21 @@ public class JsonFilter
 	}
 
 	@Override
-	public void process( JsonType type, String name, final IProcessableElement<IJsonProcessor> element ) {
+	public void process( JsonType type, String name, final ProcessableBy<JsonProcessor> element ) {
 		final PropertyPath memberPath = path.child( name );
 		if ( !selector.selects( memberPath ) ) {
 			element.discardBy( processor );
 			return;
 		}
-		processor.process( type, name, new IProcessableElement<IJsonProcessor>() {
+		processor.process( type, name, new ProcessableBy<JsonProcessor>() {
 
 			@Override
-			public void discardBy( IJsonProcessor processor ) {
+			public void discardBy( JsonProcessor processor ) {
 				element.discardBy( processor );
 			}
 
 			@Override
-			public void processBy( IJsonProcessor processor ) {
+			public void processBy( JsonProcessor processor ) {
 				element.processBy( new JsonFilter( processor, selector, memberPath ) );
 			}
 		} );

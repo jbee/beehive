@@ -1,14 +1,14 @@
 package de.jbee.io.json.map;
 
-import de.jbee.io.IProcessableElement;
+import de.jbee.io.ProcessableBy;
 import de.jbee.io.IProcessor;
-import de.jbee.io.json.IJsonProcessor;
+import de.jbee.io.json.JsonProcessor;
 import de.jbee.io.json.JsonType;
 
 public class JsonCreator {
 
 	static final class JsonConverterCreator<T>
-			implements IJsonProcessor {
+			implements JsonProcessor {
 
 		private final IProcessor<T> processor;
 		private final IJsonConverter<T> converter;
@@ -20,7 +20,7 @@ public class JsonCreator {
 		}
 
 		@Override
-		public void process( JsonType type, String name, IProcessableElement<IJsonProcessor> element ) {
+		public void process( JsonType type, String name, ProcessableBy<JsonProcessor> element ) {
 			// TODO Auto-generated method stub
 
 		}
