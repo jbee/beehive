@@ -1,4 +1,4 @@
-package de.jbee.io.json.parse;
+package de.jbee.io.json;
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;

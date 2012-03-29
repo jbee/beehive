@@ -1,4 +1,4 @@
-package de.jbee.io.json.parse;
+package de.jbee.io.json;
 
 import de.jbee.io.json.JsonTreeBuilder;
 import de.jbee.io.json.JsonInstructor.JsonMemberInstructor;
