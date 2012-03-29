@@ -66,7 +66,6 @@ public final class JsonObject
 		for ( int i = 0; i < members.length; i++ ) {
 			if ( i > 0 ) {
 				b.append( ',' );
-				b.append( '\n' );
 			}
 			b.append( members[i].toString() );
 		}

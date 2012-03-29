@@ -1,7 +1,11 @@
 package de.jbee.io.json;
 
+import java.io.StringReader;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+
+import de.jbee.io.CharReader;
+import de.jbee.io.ICharReader;
 
 /**
  * Util to work with JSON data.
@@ -16,6 +20,16 @@ public final class JSON {
 
 	private JSON() {
 		// util
+	}
+
+	public static Json parse( ICharReader in ) {
+		JsonTreeBuilder builder = JsonTreeBuilder.newInstance();
+		JsonParser.getInstance().scan( in, builder );
+		return builder.build();
+	}
+
+	public static Json parse( String in ) {
+		return parse( CharReader.of( new StringReader( in ) ) );
 	}
 
 	public static Json json( String value ) {

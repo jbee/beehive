@@ -28,12 +28,6 @@ public final class JsonParser
 		return CharScanner.trimming( new JsonParser( member ) );
 	}
 
-	public static Json parse( ICharReader in ) {
-		JsonTreeBuilder builder = JsonTreeBuilder.newInstance();
-		getInstance().scan( in, builder );
-		return builder.build();
-	}
-
 	public static ICharScanner<JsonProcessor> getInstance() {
 		return INSTANCE;
 	}

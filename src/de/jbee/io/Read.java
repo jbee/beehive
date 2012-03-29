@@ -4,15 +4,15 @@ import java.util.InputMismatchException;
 
 public final class Read {
 
-	private static final ICharScanner<ICharWriter> UNICODE_STRING = new ReadEscapedUnicodeString();
+	private static final CharCollector UNICODE_STRING = new CollectEscapedUnicodeString();
 
-	public static final ICharScanner<ICharWriter> LINE = until( '\n' );
-	public static final ICharScanner<ICharWriter> CDDATA = new ReadCDATA();
-	public static final ICharScanner<ICharWriter> DIGITS = new ReadDigits();
-	public static final ICharScanner<ICharWriter> LETTERS = new ReadLetters();
-	public static final ICharScanner<ICharWriter> UNTIL_WHITESPACE = new ReadUntilWhitespace();
+	public static final CharCollector LINE = until( '\n' );
+	public static final CharCollector CDDATA = new CollectCDATA();
+	public static final CharCollector DIGITS = new CollectDigits();
+	public static final CharCollector LETTERS = new CollectLetters();
+	public static final CharCollector UNTIL_WHITESPACE = new CollectUntilWhitespace();
 
-	public static ICharScanner<ICharWriter> next( int n ) {
+	public static CharCollector next( int n ) {
 		return new ReadN( n );
 	}
 
@@ -27,20 +27,25 @@ public final class Read {
 		return out.toString();
 	}
 
-	public static ICharScanner<ICharWriter> until( char endExclusive ) {
-		return new ReadUntilCharacter( endExclusive );
+	public static CharCollector until( char endExclusive ) {
+		return new CollectUntilCharacter( endExclusive );
 	}
 
-	public static ICharScanner<ICharWriter> unicode() {
+	public static CharCollector unicode() {
 		return UNICODE_STRING;
 	}
 
-	public static ICharScanner<ICharWriter> letterOrUniverse( String universe ) {
-		return new ReadLetterOrUniverse( universe );
+	public static CharCollector letterOrUniverse( String universe ) {
+		return new CollectLetterOrUniverse( universe );
 	}
 
-	public static ICharScanner<ICharWriter> universe( String universe ) {
-		return new ReadUniverse( universe );
+	public static CharCollector universe( String universe ) {
+		return new CollectUniverse( universe );
+	}
+
+	public static CharCollector universeBranch( String universe,
+			ICharScanner<ICharWriter> contained, ICharScanner<ICharWriter> notContained ) {
+		return new CollectUniverseBranch( universe, contained, notContained );
 	}
 
 	public static <T> ICharScanner<T> list( char open, ICharScanner<T> element, char separator,
@@ -85,8 +90,8 @@ public final class Read {
 		}
 	}
 
-	static final class ReadCDATA
-			implements ICharScanner<ICharWriter> {
+	static final class CollectCDATA
+			implements CharCollector {
 
 		@Override
 		public void scan( ICharReader in, ICharWriter out ) {
@@ -101,12 +106,12 @@ public final class Read {
 		}
 	}
 
-	static final class ReadUntilCharacter
-			implements ICharScanner<ICharWriter> {
+	static final class CollectUntilCharacter
+			implements CharCollector {
 
 		final char endExclusive;
 
-		ReadUntilCharacter( char endExclusive ) {
+		CollectUntilCharacter( char endExclusive ) {
 			super();
 			this.endExclusive = endExclusive;
 		}
@@ -119,8 +124,8 @@ public final class Read {
 		}
 	}
 
-	static final class ReadUntilWhitespace
-			implements ICharScanner<ICharWriter> {
+	static final class CollectUntilWhitespace
+			implements CharCollector {
 
 		@Override
 		public void scan( ICharReader in, ICharWriter out ) {
@@ -130,8 +135,8 @@ public final class Read {
 		}
 	}
 
-	static final class ReadDigits
-			implements ICharScanner<ICharWriter> {
+	static final class CollectDigits
+			implements CharCollector {
 
 		@Override
 		public void scan( ICharReader in, ICharWriter out ) {
@@ -141,8 +146,8 @@ public final class Read {
 		}
 	}
 
-	static final class ReadEscapedUnicodeString
-			implements ICharScanner<ICharWriter> {
+	static final class CollectEscapedUnicodeString
+			implements CharCollector {
 
 		@Override
 		public void scan( ICharReader in, ICharWriter out ) {
@@ -201,8 +206,8 @@ public final class Read {
 		}
 	}
 
-	static final class ReadLetters
-			implements ICharScanner<ICharWriter> {
+	static final class CollectLetters
+			implements CharCollector {
 
 		@Override
 		public void scan( ICharReader in, ICharWriter out ) {
@@ -213,7 +218,7 @@ public final class Read {
 	}
 
 	static final class ReadN
-			implements ICharScanner<ICharWriter> {
+			implements CharCollector {
 
 		private final int n;
 
@@ -230,12 +235,12 @@ public final class Read {
 		}
 	}
 
-	static final class ReadLetterOrUniverse
-			implements ICharScanner<ICharWriter> {
+	static final class CollectLetterOrUniverse
+			implements CharCollector {
 
 		private final String universe;
 
-		ReadLetterOrUniverse( String universe ) {
+		CollectLetterOrUniverse( String universe ) {
 			super();
 			this.universe = universe;
 		}
@@ -249,12 +254,40 @@ public final class Read {
 		}
 	}
 
-	static final class ReadUniverse
-			implements ICharScanner<ICharWriter> {
+	static final class CollectUniverseBranch
+			implements CharCollector {
+
+		private final String universe;
+		private final ICharScanner<ICharWriter> contained;
+		private final ICharScanner<ICharWriter> notContained;
+
+		CollectUniverseBranch( String universe, ICharScanner<ICharWriter> contained,
+				ICharScanner<ICharWriter> notContained ) {
+			super();
+			this.universe = universe;
+			this.contained = contained;
+			this.notContained = notContained;
+		}
+
+		@Override
+		public void scan( ICharReader in, ICharWriter out ) {
+			if ( in.hasNext() ) {
+				if ( universe.indexOf( in.peek() ) >= 0 ) {
+					contained.scan( in, out );
+				} else {
+					notContained.scan( in, out );
+				}
+			}
+		}
+
+	}
+
+	static final class CollectUniverse
+			implements CharCollector {
 
 		private final String universe;
 
-		ReadUniverse( String universe ) {
+		CollectUniverse( String universe ) {
 			super();
 			this.universe = universe;
 		}
