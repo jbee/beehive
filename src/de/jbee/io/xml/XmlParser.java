@@ -1,16 +1,16 @@
 package de.jbee.io.xml;
 
+import de.jbee.io.CharScanner;
 import de.jbee.io.Gobble;
-import de.jbee.io.ICharReader;
-import de.jbee.io.ICharScanner;
+import de.jbee.io.CharReader;
 
 public class XmlParser
-		implements ICharScanner<IXmlProcessor> {
+		implements CharScanner<IXmlProcessor> {
 
 	@Override
-	public void scan( ICharReader in, IXmlProcessor out ) {
+	public void scan( CharReader in, IXmlProcessor out ) {
 		Gobble.whitespace().process( in );
-		final XmlMarkupType type = XmlMarkupType.opens( in.reread( 2 ) );
+		final XmlMarkupType type = null; //FIXME required reread of next 2 characters
 		out.process( type, type );
 	}
 }

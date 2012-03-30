@@ -1,4 +1,4 @@
-package de.jbee.io.json.map;
+package de.jbee.io.json.draft;
 
 public interface IInstantiator<T> {
 

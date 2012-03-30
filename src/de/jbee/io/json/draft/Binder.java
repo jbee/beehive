@@ -1,4 +1,4 @@
-package de.jbee.io.json.map;
+package de.jbee.io.json.draft;
 
 import de.jbee.io.json.JsonType;
 

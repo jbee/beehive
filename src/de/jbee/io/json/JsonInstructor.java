@@ -4,7 +4,7 @@ import static de.jbee.io.json.JsonInstructor.JsonMemberInstructor.instruct;
 
 import java.io.CharArrayReader;
 
-import de.jbee.io.CharReader;
+import de.jbee.io.CharIO;
 import de.jbee.io.ProcessableBy;
 
 public interface JsonInstructor<P> {
@@ -78,7 +78,7 @@ public interface JsonInstructor<P> {
 
 		public P parse( String json ) {
 			JsonParser.yieldInstance( name ).scan(
-					CharReader.of( new CharArrayReader( json.toCharArray() ) ), processor );
+					CharIO.reader( new CharArrayReader( json.toCharArray() ) ), processor );
 			return parent;
 		}
 
@@ -115,7 +115,7 @@ public interface JsonInstructor<P> {
 
 	}
 
-	public static class JsonArrayInstructor<P>
+	class JsonArrayInstructor<P>
 			implements JsonInstructor<JsonArrayInstructor<P>>, ProcessableBy<JsonProcessor> {
 
 		private final P parent;

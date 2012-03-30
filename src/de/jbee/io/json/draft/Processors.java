@@ -1,15 +1,15 @@
-package de.jbee.io;
+package de.jbee.io.json.draft;
 
 import java.util.List;
 
-public final class Processor {
+public final class Processors {
 
-	private Processor() {
+	private Processors() {
 		// util
 	}
 
 	static class ListAppendingProcessor<T>
-			implements IProcessor<T> {
+			implements Processor<T> {
 
 		private final List<T> list;
 
@@ -23,7 +23,7 @@ public final class Processor {
 		}
 	}
 
-	public static <T> IProcessor<T> appendsTo( List<T> list ) {
+	public static <T> Processor<T> appendsTo( List<T> list ) {
 		return new ListAppendingProcessor<T>( list );
 	}
 }

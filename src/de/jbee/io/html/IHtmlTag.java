@@ -1,11 +1,11 @@
 package de.jbee.io.html;
 
-import de.jbee.io.ICharProcessor;
-import de.jbee.io.ICharScanner;
+import de.jbee.io.CharProcessor;
+import de.jbee.io.CharScanner;
 import de.jbee.io.xml.XmlContentType;
 
 public interface IHtmlTag
-		extends ICharScanner<IHtmlProcessor>, ICharProcessor {
+		extends CharScanner<IHtmlProcessor>, CharProcessor {
 
 	String name();
 

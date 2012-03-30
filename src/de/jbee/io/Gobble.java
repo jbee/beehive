@@ -2,64 +2,64 @@ package de.jbee.io;
 
 import java.util.regex.Pattern;
 
-import de.jbee.io.CharProcessor.ExpectingCharProcessor;
+import de.jbee.io.CharProcess.ExpectingCharProcessor;
 
 /**
  * 
  * @author Jan Bernitt (jan.bernitt@gmx.de)
  * 
- * @see ICharProcessor
  * @see CharProcessor
+ * @see CharProcess
  */
 public final class Gobble {
 
-	private static final ICharProcessor NOTHING = CharProcessor.NULL_OBJECT;
-	private static final ICharProcessor NEXT_1 = new GobbleN( 1 );
-	private static final ICharProcessor WHITESPACE = new GobbleWhitespace();
-	private static final ICharProcessor LETTERS = new GobbleLetters();
-	private static final ICharProcessor UNICODE_STRING = new GobbleEscapedUnicodeString();
-	private static final ICharProcessor CDATA = new GobbleCDATA();
-	private static final ICharProcessor UNTIL_WHITESPACE = new GobbleUntilWhitespace();
+	private static final CharProcessor NOTHING = CharProcess.NULL_OBJECT;
+	private static final CharProcessor NEXT_1 = new GobbleN( 1 );
+	private static final CharProcessor WHITESPACE = new GobbleWhitespace();
+	private static final CharProcessor LETTERS = new GobbleLetters();
+	private static final CharProcessor UNICODE_STRING = new GobbleEscapedUnicodeString();
+	private static final CharProcessor CDATA = new GobbleCDATA();
+	private static final CharProcessor UNTIL_WHITESPACE = new GobbleUntilWhitespace();
 
-	public static ICharProcessor a( char mandatory ) {
+	public static CharProcessor a( char mandatory ) {
 		return new GobbleAChar( mandatory );
 	}
 
-	public static ICharProcessor all( char optional ) {
+	public static CharProcessor all( char optional ) {
 		return new GobbleAll( optional );
 	}
 
-	public static ICharProcessor aWhitespaced( char mandatory ) {
+	public static CharProcessor aWhitespaced( char mandatory ) {
 		return whitespaced( a( mandatory ) );
 	}
 
-	public static ICharProcessor block( String openUniverse, String closeUniverse,
-			String escapeingUniverse, ICharProcessor escapeingBlockProcessor ) {
+	public static CharProcessor block( String openUniverse, String closeUniverse,
+			String escapeingUniverse, CharProcessor escapeingBlockProcessor ) {
 		return new GobbleBlock( openUniverse, closeUniverse, escapeingUniverse,
 				escapeingBlockProcessor );
 	}
 
-	public static ICharProcessor eitherOr( String either, String or ) {
+	public static CharProcessor eitherOr( String either, String or ) {
 		return new GobbleEitherOr( either, or );
 	}
 
-	public static ICharProcessor oneOf( String mandatory ) {
+	public static CharProcessor oneOf( String mandatory ) {
 		return new GobbleAMemberChar( mandatory );
 	}
 
-	public static ICharProcessor letters() {
+	public static CharProcessor letters() {
 		return LETTERS;
 	}
 
-	public static ICharProcessor cDATA() {
+	public static CharProcessor cDATA() {
 		return CDATA;
 	}
 
-	public static ICharProcessor maybe( char optional ) {
+	public static CharProcessor maybe( char optional ) {
 		return new GobbleMaybeChar( optional );
 	}
 
-	public static ICharProcessor next( int n ) {
+	public static CharProcessor next( int n ) {
 		return n <= 0
 			? NOTHING
 			: n == 1
@@ -67,38 +67,38 @@ public final class Gobble {
 				: new GobbleN( n );
 	}
 
-	public static ICharProcessor next1() {
+	public static CharProcessor next1() {
 		return NEXT_1;
 	}
 
-	public static ICharProcessor just( String sequence ) {
+	public static CharProcessor just( String sequence ) {
 		return new GobbleASequence( sequence );
 	}
 
-	public static ICharProcessor unicode() {
+	public static CharProcessor unicode() {
 		return UNICODE_STRING;
 	}
 
-	public static ICharProcessor universe( String universe ) {
+	public static CharProcessor universe( String universe ) {
 		return new GobbleUniverse( universe );
 	}
 
-	public static ICharProcessor until( char end ) {
+	public static CharProcessor until( char end ) {
 		return new GobbleUntilChar( end );
 	}
 
-	public static ICharProcessor untilWhitespace() {
+	public static CharProcessor untilWhitespace() {
 		return UNTIL_WHITESPACE;
 	}
 
-	public static ICharProcessor whitespace() {
+	public static CharProcessor whitespace() {
 		return WHITESPACE;
 	}
 
-	public static ICharProcessor whitespaced( ICharProcessor inner ) {
+	public static CharProcessor whitespaced( CharProcessor inner ) {
 		return inner == NOTHING
 			? WHITESPACE
-			: CharProcessor.combine( CharProcessor.combine( WHITESPACE, inner ), WHITESPACE );
+			: CharProcess.combine( CharProcess.combine( WHITESPACE, inner ), WHITESPACE );
 	}
 
 	private Gobble() {
@@ -116,7 +116,7 @@ public final class Gobble {
 		}
 
 		@Override
-		public void process( ICharReader in ) {
+		public void process( CharReader in ) {
 			expect( in, mandatory );
 		}
 	}
@@ -132,13 +132,13 @@ public final class Gobble {
 		}
 
 		@Override
-		public void process( ICharReader in ) {
+		public void process( CharReader in ) {
 			expectAny( in, members );
 		}
 	}
 
 	static final class GobbleAll
-			implements ICharProcessor {
+			implements CharProcessor {
 
 		final char gobbled;
 
@@ -148,7 +148,7 @@ public final class Gobble {
 		}
 
 		@Override
-		public void process( ICharReader in ) {
+		public void process( CharReader in ) {
 			while ( in.hasNext() && in.peek() == gobbled ) {
 				in.next();
 			}
@@ -166,7 +166,7 @@ public final class Gobble {
 		}
 
 		@Override
-		public void process( ICharReader in ) {
+		public void process( CharReader in ) {
 			for ( int i = 0; i < sequence.length(); i++ ) {
 				expect( in, sequence.charAt( i ) );
 			}
@@ -180,10 +180,10 @@ public final class Gobble {
 		final String openUniverse;
 		final String closeUniverse;
 		final String escapeingUniverse;
-		final ICharProcessor escapeingBlockProcessor;
+		final CharProcessor escapeingBlockProcessor;
 
 		GobbleBlock( String openUniverse, String closeUniverse, String escapeingUniverse,
-				ICharProcessor escapeingBlockProcessor ) {
+				CharProcessor escapeingBlockProcessor ) {
 			super();
 			this.openUniverse = openUniverse;
 			this.closeUniverse = closeUniverse;
@@ -192,7 +192,7 @@ public final class Gobble {
 		}
 
 		@Override
-		public void process( ICharReader in ) {
+		public void process( CharReader in ) {
 			int level = 0;
 			do {
 				char c = in.peek();
@@ -214,10 +214,10 @@ public final class Gobble {
 	}
 
 	static final class GobbleCDATA
-			implements ICharProcessor {
+			implements CharProcessor {
 
 		@Override
-		public void process( ICharReader in ) {
+		public void process( CharReader in ) {
 			char quote = in.peek();
 			if ( quote == '"' || quote == '\'' ) {
 				until( quote ).process( in );
@@ -231,7 +231,7 @@ public final class Gobble {
 			extends ExpectingCharProcessor {
 
 		@Override
-		public void process( ICharReader in ) {
+		public void process( CharReader in ) {
 			char frameOpener = in.peek();
 			if ( "\"'".indexOf( frameOpener ) < 0 ) {
 				mismatch( "Not a valid unicode string opener: " + frameOpener );
@@ -250,10 +250,10 @@ public final class Gobble {
 	}
 
 	static final class GobbleLetters
-			implements ICharProcessor {
+			implements CharProcessor {
 
 		@Override
-		public void process( ICharReader in ) {
+		public void process( CharReader in ) {
 			while ( in.hasNext() && Character.isLetter( in.peek() ) ) {
 				in.next();
 			}
@@ -262,7 +262,7 @@ public final class Gobble {
 	}
 
 	static final class GobbleMaybeChar
-			implements ICharProcessor {
+			implements CharProcessor {
 
 		private final char optional;
 
@@ -272,7 +272,7 @@ public final class Gobble {
 		}
 
 		@Override
-		public void process( ICharReader in ) {
+		public void process( CharReader in ) {
 			if ( in.hasNext() && in.peek() == optional ) {
 				in.next();
 			}
@@ -280,7 +280,7 @@ public final class Gobble {
 	}
 
 	static final class GobbleN
-			implements ICharProcessor {
+			implements CharProcessor {
 
 		final int n;
 
@@ -290,7 +290,7 @@ public final class Gobble {
 		}
 
 		@Override
-		public void process( ICharReader in ) {
+		public void process( CharReader in ) {
 			for ( int i = 0; i < n; i++ ) {
 				in.next();
 			}
@@ -298,7 +298,7 @@ public final class Gobble {
 	}
 
 	static final class GobblePattern
-			implements ICharProcessor {
+			implements CharProcessor {
 
 		final Pattern pattern;
 
@@ -308,7 +308,7 @@ public final class Gobble {
 		}
 
 		@Override
-		public void process( ICharReader in ) {
+		public void process( CharReader in ) {
 			StringBuilder b = new StringBuilder();
 			boolean matches = true;
 			while ( in.hasNext() && matches ) {
@@ -322,7 +322,7 @@ public final class Gobble {
 	}
 
 	static final class GobbleUniverse
-			implements ICharProcessor {
+			implements CharProcessor {
 
 		final String universe;
 
@@ -332,7 +332,7 @@ public final class Gobble {
 		}
 
 		@Override
-		public void process( ICharReader in ) {
+		public void process( CharReader in ) {
 			while ( in.hasNext() && universe.indexOf( in.peek() ) >= 0 ) {
 				in.next();
 			}
@@ -340,11 +340,11 @@ public final class Gobble {
 	}
 
 	static final class GobbleEitherOr
-			implements ICharProcessor {
+			implements CharProcessor {
 
 		private final char eitherStart;
-		private final ICharProcessor either;
-		private final ICharProcessor or;
+		private final CharProcessor either;
+		private final CharProcessor or;
 
 		GobbleEitherOr( String either, String or ) {
 			super();
@@ -354,7 +354,7 @@ public final class Gobble {
 		}
 
 		@Override
-		public void process( ICharReader in ) {
+		public void process( CharReader in ) {
 			if ( in.peek() == eitherStart ) {
 				either.process( in );
 			} else {
@@ -364,10 +364,10 @@ public final class Gobble {
 	}
 
 	static final class GobbleUntilWhitespace
-			implements ICharProcessor {
+			implements CharProcessor {
 
 		@Override
-		public void process( ICharReader in ) {
+		public void process( CharReader in ) {
 			while ( in.hasNext() && !Character.isWhitespace( in.peek() ) ) {
 				in.next();
 			}
@@ -375,7 +375,7 @@ public final class Gobble {
 	}
 
 	static final class GobbleUntilChar
-			implements ICharProcessor {
+			implements CharProcessor {
 
 		final char end;
 
@@ -385,7 +385,7 @@ public final class Gobble {
 		}
 
 		@Override
-		public void process( ICharReader in ) {
+		public void process( CharReader in ) {
 			while ( in.hasNext() && in.peek() != end ) {
 				in.next();
 			}
@@ -393,10 +393,10 @@ public final class Gobble {
 	}
 
 	static final class GobbleWhitespace
-			implements ICharProcessor {
+			implements CharProcessor {
 
 		@Override
-		public void process( ICharReader in ) {
+		public void process( CharReader in ) {
 			while ( in.hasNext() && Character.isWhitespace( in.peek() ) ) {
 				in.next();
 			}

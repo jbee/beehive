@@ -1,7 +1,7 @@
 package de.jbee.io;
 
 public interface CharCollector
-		extends ICharScanner<ICharWriter> {
+		extends CharScanner<CharWriter> {
 
 	// just give this generic combination a name
 }

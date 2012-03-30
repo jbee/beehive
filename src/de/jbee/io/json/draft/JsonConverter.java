@@ -1,6 +1,5 @@
-package de.jbee.io.json.map;
+package de.jbee.io.json.draft;
 
-import de.jbee.io.IProcessor;
 
 public final class JsonConverter {
 
@@ -12,22 +11,22 @@ public final class JsonConverter {
 			implements IJsonConverter<String> {
 
 		@Override
-		public void convert( String value, IProcessor<String> processor ) {
+		public void convert( String value, Processor<String> processor ) {
 			processor.process( value );
 		}
 
 		@Override
-		public void convert( Number value, IProcessor<String> processor ) {
+		public void convert( Number value, Processor<String> processor ) {
 			processor.process( value.toString() );
 		}
 
 		@Override
-		public void convert( boolean value, IProcessor<String> processor ) {
+		public void convert( boolean value, Processor<String> processor ) {
 			processor.process( Boolean.toString( value ) );
 		}
 
 		@Override
-		public void convertNull( IProcessor<String> processor ) {
+		public void convertNull( Processor<String> processor ) {
 			processor.process( null );
 		}
 
@@ -46,22 +45,22 @@ public final class JsonConverter {
 		}
 
 		@Override
-		public void convert( String value, IProcessor<T> processor ) {
+		public void convert( String value, Processor<T> processor ) {
 			converter.convert( value, processor );
 		}
 
 		@Override
-		public void convert( Number value, IProcessor<T> processor ) {
+		public void convert( Number value, Processor<T> processor ) {
 			converter.convert( value, processor );
 		}
 
 		@Override
-		public void convert( boolean value, IProcessor<T> processor ) {
+		public void convert( boolean value, Processor<T> processor ) {
 			converter.convert( value, processor );
 		}
 
 		@Override
-		public void convertNull( IProcessor<T> processor ) {
+		public void convertNull( Processor<T> processor ) {
 			processor.process( nullDefault );
 		}
 

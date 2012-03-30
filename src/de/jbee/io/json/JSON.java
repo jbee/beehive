@@ -4,8 +4,8 @@ import java.io.StringReader;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
+import de.jbee.io.CharIO;
 import de.jbee.io.CharReader;
-import de.jbee.io.ICharReader;
 
 /**
  * Util to work with JSON data.
@@ -22,14 +22,14 @@ public final class JSON {
 		// util
 	}
 
-	public static Json parse( ICharReader in ) {
+	public static Json parse( CharReader in ) {
 		JsonTreeBuilder builder = JsonTreeBuilder.newInstance();
 		JsonParser.getInstance().scan( in, builder );
 		return builder.build();
 	}
 
 	public static Json parse( String in ) {
-		return parse( CharReader.of( new StringReader( in ) ) );
+		return parse( CharIO.reader( new StringReader( in ) ) );
 	}
 
 	public static Json json( String value ) {

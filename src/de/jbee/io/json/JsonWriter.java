@@ -1,14 +1,14 @@
 package de.jbee.io.json;
 
-import de.jbee.io.ICharWriter;
+import de.jbee.io.CharWriter;
 import de.jbee.io.ProcessableBy;
 
 public class JsonWriter
 		implements JsonProcessor {
 
-	private final ICharWriter out;
+	private final CharWriter out;
 
-	public JsonWriter( ICharWriter out ) {
+	public JsonWriter( CharWriter out ) {
 		super();
 		this.out = out;
 	}

@@ -8,9 +8,9 @@ import java.io.FileReader;
 
 import org.junit.Test;
 
+import de.jbee.io.CharIO;
 import de.jbee.io.CharReader;
-import de.jbee.io.ICharReader;
-import de.jbee.io.ICharScanner;
+import de.jbee.io.CharScanner;
 import de.jbee.io.json.filter.JsonFilter;
 import de.jbee.io.property.IPropertySelector;
 import de.jbee.io.property.PropertyPath;
@@ -34,7 +34,7 @@ public class HowToParseJson {
 	@Test
 	public void parseFromFile()
 			throws FileNotFoundException {
-		ICharReader in = CharReader.of( new FileReader( "test/de/jbee/io/json/Test.json" ) );
+		CharReader in = CharIO.reader( new FileReader( "test/de/jbee/io/json/Test.json" ) );
 		Json obj = JSON.parse( in );
 		assertThat( obj, instanceOf( JsonObject.class ) );
 	}
@@ -42,8 +42,8 @@ public class HowToParseJson {
 	@Test
 	public void testTreeBuilder()
 			throws FileNotFoundException {
-		ICharReader in = CharReader.of( new FileReader( "test/de/jbee/io/json/Test.json" ) );
-		ICharScanner<JsonProcessor> parser = JsonParser.getInstance();
+		CharReader in = CharIO.reader( new FileReader( "test/de/jbee/io/json/Test.json" ) );
+		CharScanner<JsonProcessor> parser = JsonParser.getInstance();
 		JsonTreeBuilder treeBuilder = JsonTreeBuilder.newInstance();
 		parser.scan( in, new JsonFilter( treeBuilder, new IPropertySelector() {
 

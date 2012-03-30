@@ -1,13 +1,13 @@
 package de.jbee.io.json;
 
-import de.jbee.io.ICharWriter;
+import de.jbee.io.CharWriter;
 
 public class JsonTreeWriter
 		implements JsonTreeVisitor {
 
-	private final ICharWriter out;
+	private final CharWriter out;
 
-	private JsonTreeWriter( ICharWriter out ) {
+	private JsonTreeWriter( CharWriter out ) {
 		super();
 		this.out = out;
 	}

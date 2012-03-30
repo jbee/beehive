@@ -2,7 +2,7 @@ package de.jbee.io;
 
 import java.util.InputMismatchException;
 
-public final class Read {
+public final class Collect {
 
 	private static final CharCollector UNICODE_STRING = new CollectEscapedUnicodeString();
 
@@ -16,12 +16,12 @@ public final class Read {
 		return new ReadN( n );
 	}
 
-	public static void toBuffer( ICharReader in, StringBuilder out,
-			ICharScanner<ICharWriter> scanner ) {
-		CharScanner.appending( scanner ).scan( in, out );
+	public static void toBuffer( CharReader in, StringBuilder out,
+			CharScanner<CharWriter> scanner ) {
+		ScanTo.appending( scanner ).scan( in, out );
 	}
 
-	public static String toString( ICharReader in, ICharScanner<ICharWriter> scanner ) {
+	public static String toString( CharReader in, CharScanner<CharWriter> scanner ) {
 		StringBuilder out = new StringBuilder();
 		toBuffer( in, out, scanner );
 		return out.toString();
@@ -45,28 +45,28 @@ public final class Read {
 
 	//TODO split decision based on a char from collect/scan so that both can be combined independently --> see CharPredicate
 	public static CharCollector universeBranch( String universe,
-			ICharScanner<ICharWriter> contained, ICharScanner<ICharWriter> notContained ) {
+			CharScanner<CharWriter> contained, CharScanner<CharWriter> notContained ) {
 		return new CollectUniverseBranch( universe, contained, notContained );
 	}
 
-	public static <T> ICharScanner<T> list( char open, ICharScanner<T> element, char separator,
+	public static <T> CharScanner<T> list( char open, CharScanner<T> element, char separator,
 			char close ) {
 		return new ListCharScanner<T>( open, element, separator, close );
 	}
 
-	private Read() {
+	private Collect() {
 		// util
 	}
 
 	static final class ListCharScanner<T>
-			implements ICharScanner<T> {
+			implements CharScanner<T> {
 
 		private final char open;
-		private final ICharScanner<T> element;
+		private final CharScanner<T> element;
 		private final char separator;
 		private final char close;
 
-		ListCharScanner( char open, ICharScanner<T> element, char separator, char close ) {
+		ListCharScanner( char open, CharScanner<T> element, char separator, char close ) {
 			super();
 			this.open = open;
 			this.element = element;
@@ -74,7 +74,7 @@ public final class Read {
 			this.close = close;
 		}
 
-		public void scan( ICharReader in, T out ) {
+		public void scan( CharReader in, T out ) {
 			Gobble.a( open ).process( in );
 			if ( in.peek() != close ) {
 				scanElement( in, out );
@@ -82,7 +82,7 @@ public final class Read {
 			Gobble.a( close ).process( in );
 		}
 
-		private void scanElement( ICharReader in, T out ) {
+		private void scanElement( CharReader in, T out ) {
 			element.scan( in, out );
 			if ( in.peek() == separator ) {
 				Gobble.a( separator ).process( in );
@@ -95,7 +95,7 @@ public final class Read {
 			implements CharCollector {
 
 		@Override
-		public void scan( ICharReader in, ICharWriter out ) {
+		public void scan( CharReader in, CharWriter out ) {
 			char quote = in.peek();
 			if ( quote == '"' || quote == '\'' ) {
 				until( quote ).scan( in, out );
@@ -118,7 +118,7 @@ public final class Read {
 		}
 
 		@Override
-		public void scan( ICharReader in, ICharWriter out ) {
+		public void scan( CharReader in, CharWriter out ) {
 			while ( in.hasNext() && in.peek() != endExclusive ) {
 				out.append( in.next() );
 			}
@@ -129,7 +129,7 @@ public final class Read {
 			implements CharCollector {
 
 		@Override
-		public void scan( ICharReader in, ICharWriter out ) {
+		public void scan( CharReader in, CharWriter out ) {
 			while ( in.hasNext() && !Character.isWhitespace( in.peek() ) ) {
 				out.append( in.next() );
 			}
@@ -140,7 +140,7 @@ public final class Read {
 			implements CharCollector {
 
 		@Override
-		public void scan( ICharReader in, ICharWriter out ) {
+		public void scan( CharReader in, CharWriter out ) {
 			while ( in.hasNext() && Character.isDigit( in.peek() ) ) {
 				out.append( in.next() );
 			}
@@ -151,7 +151,7 @@ public final class Read {
 			implements CharCollector {
 
 		@Override
-		public void scan( ICharReader in, ICharWriter out ) {
+		public void scan( CharReader in, CharWriter out ) {
 			char frameOpener = in.peek();
 			if ( "\"'".indexOf( frameOpener ) < 0 ) {
 				throw new InputMismatchException( "Not a valid unicode string opener: "
@@ -164,7 +164,7 @@ public final class Read {
 					c = in.next();
 					switch ( c ) {
 						case 'u':
-							out.append( Character.toChars( Integer.parseInt( Read.toString( in,
+							out.append( Character.toChars( Integer.parseInt( Collect.toString( in,
 									next( 4 ) ), 16 ) ) );
 							break;
 						case '"':
@@ -211,7 +211,7 @@ public final class Read {
 			implements CharCollector {
 
 		@Override
-		public void scan( ICharReader in, ICharWriter out ) {
+		public void scan( CharReader in, CharWriter out ) {
 			while ( in.hasNext() && Character.isLetter( in.peek() ) ) {
 				out.append( in.next() );
 			}
@@ -229,7 +229,7 @@ public final class Read {
 		}
 
 		@Override
-		public void scan( ICharReader in, ICharWriter out ) {
+		public void scan( CharReader in, CharWriter out ) {
 			for ( int i = 0; i < n; i++ ) {
 				out.append( in.next() );
 			}
@@ -247,7 +247,7 @@ public final class Read {
 		}
 
 		@Override
-		public void scan( ICharReader in, ICharWriter out ) {
+		public void scan( CharReader in, CharWriter out ) {
 			while ( in.hasNext()
 					&& ( Character.isLetter( in.peek() ) || universe.indexOf( in.peek() ) >= 0 ) ) {
 				out.append( in.next() );
@@ -259,11 +259,11 @@ public final class Read {
 			implements CharCollector {
 
 		private final String universe;
-		private final ICharScanner<ICharWriter> contained;
-		private final ICharScanner<ICharWriter> notContained;
+		private final CharScanner<CharWriter> contained;
+		private final CharScanner<CharWriter> notContained;
 
-		CollectUniverseBranch( String universe, ICharScanner<ICharWriter> contained,
-				ICharScanner<ICharWriter> notContained ) {
+		CollectUniverseBranch( String universe, CharScanner<CharWriter> contained,
+				CharScanner<CharWriter> notContained ) {
 			super();
 			this.universe = universe;
 			this.contained = contained;
@@ -271,7 +271,7 @@ public final class Read {
 		}
 
 		@Override
-		public void scan( ICharReader in, ICharWriter out ) {
+		public void scan( CharReader in, CharWriter out ) {
 			if ( in.hasNext() ) {
 				if ( universe.indexOf( in.peek() ) >= 0 ) {
 					contained.scan( in, out );
@@ -294,7 +294,7 @@ public final class Read {
 		}
 
 		@Override
-		public void scan( ICharReader in, ICharWriter out ) {
+		public void scan( CharReader in, CharWriter out ) {
 			while ( in.hasNext() && universe.indexOf( in.peek() ) >= 0 ) {
 				out.append( in.next() );
 			}

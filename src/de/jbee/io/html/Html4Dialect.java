@@ -5,7 +5,7 @@ import static de.jbee.io.html.HtmlLayoutType.INLINE;
 import static de.jbee.io.html.HtmlLayoutType.INLINE_OR_BLOCK;
 import static de.jbee.io.html.HtmlLayoutType.NONE;
 import static de.jbee.io.xml.XmlContentType.EMPTY;
-import de.jbee.io.ICharReader;
+import de.jbee.io.CharReader;
 import de.jbee.io.xml.XmlContentType;
 
 public enum Html4Dialect
@@ -152,7 +152,7 @@ public enum Html4Dialect
 	}
 
 	@Override
-	public void scan( ICharReader in, IHtmlProcessor out ) {
+	public void scan( CharReader in, IHtmlProcessor out ) {
 		//TODO
 	}
 
@@ -160,7 +160,7 @@ public enum Html4Dialect
 	 * Gobbles the element (including its attributes and children for block elements).
 	 */
 	@Override
-	public void process( ICharReader in ) {
+	public void process( CharReader in ) {
 		// TODO Auto-generated method stub
 
 	}

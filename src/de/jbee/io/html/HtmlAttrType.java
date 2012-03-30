@@ -1,39 +1,39 @@
 package de.jbee.io.html;
 
-import de.jbee.io.CharScanner;
+import de.jbee.io.ScanTo;
 import de.jbee.io.Gobble;
-import de.jbee.io.ICharReader;
-import de.jbee.io.ICharScanner;
-import de.jbee.io.Read;
+import de.jbee.io.CharReader;
+import de.jbee.io.CharScanner;
+import de.jbee.io.Collect;
 
 public enum HtmlAttrType
-		implements ICharScanner<IHtmlProcessor> {
+		implements CharScanner<IHtmlProcessor> {
 
 	CDATA( new HtmlAttributesScanner() );
 
-	private final ICharScanner<IHtmlProcessor> scanner;
+	private final CharScanner<IHtmlProcessor> scanner;
 
-	private HtmlAttrType( ICharScanner<IHtmlProcessor> scanner ) {
+	private HtmlAttrType( CharScanner<IHtmlProcessor> scanner ) {
 		this.scanner = scanner;
 	}
 
-	public void scan( ICharReader in, IHtmlProcessor out ) {
+	public void scan( CharReader in, IHtmlProcessor out ) {
 		scanner.scan( in, out );
 	}
 
 	static final class HtmlAttributesScanner
-			implements ICharScanner<IHtmlProcessor> {
+			implements CharScanner<IHtmlProcessor> {
 
 		@Override
-		public void scan( ICharReader in, IHtmlProcessor out ) {
+		public void scan( CharReader in, IHtmlProcessor out ) {
 			Gobble.whitespace().process( in );
 			char c = in.peek();
 			while ( c != '/' && c != '>' ) {
 				final IHtmlAttr attr = out.dialect().attr(
-						Read.toString( in, Read.letterOrUniverse( "-" ) ) );
+						Collect.toString( in, Collect.letterOrUniverse( "-" ) ) );
 				Gobble.a( '=' ).process( in );
-				out.process( attr, CharScanner.processing( in, new HtmlAttributeScanner( attr ),
-						CharScanner.of( Gobble.cDATA() ) ) );
+				out.process( attr, ScanTo.processing( in, new HtmlAttributeScanner( attr ),
+						ScanTo.scansTo( Gobble.cDATA() ) ) );
 				c = in.peek();
 			}
 		}
@@ -41,7 +41,7 @@ public enum HtmlAttrType
 	}
 
 	static final class HtmlAttributeScanner
-			implements ICharScanner<IHtmlProcessor> {
+			implements CharScanner<IHtmlProcessor> {
 
 		final IHtmlAttr attr;
 
@@ -51,8 +51,8 @@ public enum HtmlAttrType
 		}
 
 		@Override
-		public void scan( ICharReader in, IHtmlProcessor out ) {
-			String value = Read.toString( in, Read.CDDATA );
+		public void scan( CharReader in, IHtmlProcessor out ) {
+			String value = Collect.toString( in, Collect.CDDATA );
 			out.process( attr, value );
 		}
 	}

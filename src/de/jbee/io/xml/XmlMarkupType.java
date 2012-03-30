@@ -1,14 +1,14 @@
 package de.jbee.io.xml;
 
 import de.jbee.io.Gobble;
-import de.jbee.io.ICharProcessor;
-import de.jbee.io.ICharReader;
-import de.jbee.io.ICharScanner;
+import de.jbee.io.CharProcessor;
+import de.jbee.io.CharReader;
+import de.jbee.io.CharScanner;
 import de.jbee.io.ProcessableBy;
 import de.jbee.io.html.IHtmlTag;
 
 public enum XmlMarkupType
-		implements ICharScanner<IXmlProcessor>, ICharProcessor, ProcessableBy<IXmlProcessor> {
+		implements CharScanner<IXmlProcessor>, CharProcessor, ProcessableBy<IXmlProcessor> {
 
 	XML_DECLARATION(),
 	PROCESSING_INSTRUCTION,
@@ -28,7 +28,7 @@ public enum XmlMarkupType
 	DOCTYPE_DECLARATION(),
 	COMMENT(), ;
 
-	private final ICharScanner<? super IXmlProcessor> scanner;
+	private final CharScanner<? super IXmlProcessor> scanner;
 
 	private XmlMarkupType() {
 		this.scanner = null;
@@ -50,15 +50,15 @@ public enum XmlMarkupType
 		return this != CONTENT;
 	}
 
-	public void scan( ICharReader in, IXmlProcessor out ) {
+	public void scan( CharReader in, IXmlProcessor out ) {
 		scanner.scan( in, out );
 	}
 
 	static class XmlDoctypeScanner
-			implements ICharScanner<IXmlProcessor> {
+			implements CharScanner<IXmlProcessor> {
 
 		@Override
-		public void scan( ICharReader in, IXmlProcessor out ) {
+		public void scan( CharReader in, IXmlProcessor out ) {
 			Gobble.just( "<!DOCTYPE" ).process( in );
 			Gobble.whitespace().process( in );
 		}
@@ -66,7 +66,7 @@ public enum XmlMarkupType
 	}
 
 	static class XmlTagScanner
-			implements ICharScanner<IXmlProcessor> {
+			implements CharScanner<IXmlProcessor> {
 
 		private final IHtmlTag tag;
 
@@ -76,19 +76,19 @@ public enum XmlMarkupType
 		}
 
 		@Override
-		public final void scan( ICharReader in, IXmlProcessor out ) {
+		public final void scan( CharReader in, IXmlProcessor out ) {
 
 		}
 
 	}
 
 	@Override
-	public void process( ICharReader in ) {
+	public void process( CharReader in ) {
 		// TODO Auto-generated method stub
 
 	}
 
-	static XmlMarkupType opens( ICharReader in ) {
+	static XmlMarkupType opens( CharReader in ) {
 		char first = in.next();
 		if ( first == '<' ) {
 			char second = in.next();

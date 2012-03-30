@@ -1,25 +1,25 @@
 package de.jbee.io.html;
 
-import de.jbee.io.CharScanner;
+import de.jbee.io.ScanTo;
 import de.jbee.io.Gobble;
-import de.jbee.io.ICharReader;
-import de.jbee.io.ICharScanner;
-import de.jbee.io.Read;
+import de.jbee.io.CharReader;
+import de.jbee.io.CharScanner;
+import de.jbee.io.Collect;
 
 public class HtmlParser
-		implements ICharScanner<IHtmlProcessor> {
+		implements CharScanner<IHtmlProcessor> {
 
 	//TODO generalize to XML/ML so that xhtml or other xml documents can be parsed as well 
 
 	@Override
-	public void scan( ICharReader in, IHtmlProcessor out ) {
+	public void scan( CharReader in, IHtmlProcessor out ) {
 		Gobble.whitespace();
 		Gobble.a( '<' ).process( in );
 		if ( in.peek() == '!' ) {
 			// TODO comment or doctype
 		}
-		IHtmlTag tag = out.dialect().tag( Read.toString( in, Read.LETTERS ) );
-		out.process( tag, CharScanner.processing( in, tag, CharScanner.of( tag ) ) );
+		IHtmlTag tag = out.dialect().tag( Collect.toString( in, Collect.LETTERS ) );
+		out.process( tag, ScanTo.processing( in, tag, ScanTo.scansTo( tag ) ) );
 	}
 
 }
