@@ -2,12 +2,11 @@ package de.jbee.io.json;
 
 import java.util.InputMismatchException;
 
-import de.jbee.io.Gobble;
 import de.jbee.io.CharProcessor;
 import de.jbee.io.CharReader;
 import de.jbee.io.CharScanner;
 import de.jbee.io.Collect;
-import de.jbee.io.ScanTo.UtilisedCharScanner;
+import de.jbee.io.Gobble;
 
 public enum JsonType
 		implements CharScanner<JsonProcessor>, CharProcessor {
@@ -76,16 +75,16 @@ public enum JsonType
 	}
 
 	static final class JsonMemberScanner
-			extends UtilisedCharScanner<JsonProcessor> {
+			implements CharScanner<JsonProcessor> {
 
 		@Override
 		public void scan( CharReader in, JsonProcessor out ) {
-			once( Gobble.whitespace(), in );
+			Gobble.whitespace().process( in );
 			String name = Collect.toString( in, Collect.universeBranch( "\"'", Collect.unicode(),
 					Collect.until( ':' ) ) );
-			once( Gobble.aWhitespaced( ':' ), in );
+			Gobble.aWhitespaced( ':' ).process( in );
 			JsonParser.yieldInstance( name ).scan( in, out );
-			once( Gobble.whitespace(), in );
+			Gobble.whitespace().process( in );
 		}
 	}
 
@@ -103,16 +102,17 @@ public enum JsonType
 
 		@Override
 		public void scan( CharReader in, JsonProcessor out ) {
-			out.process( JSON.parseNumber( Collect.toString( in, Collect.universe( JSON.NUMBER_UNIVERSE ) ) ) );
+			out.process( JSON.parseNumber( Collect.toString( in,
+					Collect.universe( JSON.NUMBER_UNIVERSE ) ) ) );
 		}
 	}
 
 	static final class JsonNullScanner
-			extends UtilisedCharScanner<JsonProcessor> {
+			implements CharScanner<JsonProcessor> {
 
 		@Override
 		public void scan( CharReader in, JsonProcessor out ) {
-			once( Gobble.just( "null" ), in );
+			Gobble.just( "null" ).process( in );
 			out.processNull();
 		}
 	}

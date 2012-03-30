@@ -33,15 +33,6 @@ public final class ScanTo {
 		// util
 	}
 
-	public static abstract class UtilisedCharScanner<T>
-			implements CharScanner<T> {
-
-		protected final void once( CharProcessor processor, CharReader in ) {
-			processor.process( in );
-		}
-
-	}
-
 	public static abstract class AssembledCharScanner<T>
 			implements CharScanner<T> {
 
