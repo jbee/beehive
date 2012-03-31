@@ -14,7 +14,7 @@ public enum JsonType
 
 	NULL( "n", new JsonNullScanner(), Gobble.letters() ),
 	BOOLEAN( "tf", new JsonBooleanScanner(), Gobble.letters() ),
-	NUMBER( "-0123456789", new JsonNumberScanner(), Gobble.universe( JSON.NUMBER_CHARSET ) ),
+	NUMBER( "-0123456789", new JsonNumberScanner(), Gobble.charset( JSON.NUMBER_CHARSET ) ),
 	STRING( "\"'", new JsonStringScanner(), Gobble.unicode() ),
 	ARRAY( "[", ScanTo.list( '[', JsonParser.getInstance(), ',', ']' ), Gobble.block( "[{", "}]",
 			"'\"", Gobble.unicode() ) ),

@@ -13,6 +13,14 @@ public final class CharProcess {
 
 	public static final CharProcessor NULL_OBJECT = new NullCharProcessor();
 
+	public static CharProcessor combine( CharProcessor first, CharProcessor... more ) {
+		CharProcessor res = first;
+		for ( int i = 0; i < more.length; i++ ) {
+			res = combine( res, more[i] );
+		}
+		return res;
+	}
+
 	public static CharProcessor combine( CharProcessor first, CharProcessor second ) {
 		return first == NULL_OBJECT
 			? second
@@ -44,7 +52,7 @@ public final class CharProcess {
 		// util
 	}
 
-	static final class CharScannerAdapter<T>
+	private static final class CharScannerAdapter<T>
 			implements CharProcessor {
 
 		final CharScanner<T> scanner;
@@ -62,7 +70,7 @@ public final class CharProcess {
 		}
 	}
 
-	static final class CombinedCharProcessor
+	private static final class CombinedCharProcessor
 			implements CharProcessor {
 
 		final CharProcessor first;
@@ -106,13 +114,21 @@ public final class CharProcess {
 			}
 		}
 
+		protected final void expect( CharPredicate predicate, CharReader in ) {
+			expectHasNext( in );
+			final char next = in.next();
+			if ( predicate.isSuitable( next ) ) {
+				mismatch( "Expected any of [" + predicate + "] but found: '" + next + "'" );
+			}
+		}
+
 		protected final void mismatch( String message )
 				throws InputMismatchException {
 			throw new InputMismatchException( message );
 		}
 	}
 
-	static final class ListCharProcessor
+	private static final class ListCharProcessor
 			implements CharProcessor {
 
 		private final CharProcessor element;
@@ -134,8 +150,12 @@ public final class CharProcess {
 		}
 	}
 
-	static final class NullCharProcessor
+	private static final class NullCharProcessor
 			implements CharProcessor {
+
+		NullCharProcessor() {
+			// make visible
+		}
 
 		@Override
 		public void process( CharReader in ) {

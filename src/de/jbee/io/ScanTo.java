@@ -100,7 +100,7 @@ public final class ScanTo {
 		}
 	}
 
-	static final class TrimmingCharScanner<T>
+	private static final class TrimmingCharScanner<T>
 			implements CharScanner<T> {
 
 		private final CharScanner<T> scanner;
@@ -119,7 +119,7 @@ public final class ScanTo {
 
 	}
 
-	static final class ChainCharScanner<T>
+	private static final class ChainCharScanner<T>
 			implements CharScanner<T> {
 
 		private final CharScanner<? super T> first;
@@ -137,7 +137,7 @@ public final class ScanTo {
 		}
 	}
 
-	static final class ProcessorCharScanner
+	private static final class ProcessorCharScanner
 			implements CharScanner<Object> {
 
 		private final CharProcessor out;
@@ -153,7 +153,7 @@ public final class ScanTo {
 		}
 	}
 
-	static final class ProcessableCharScanner<T>
+	private static final class ProcessableCharScanner<T>
 			implements ProcessableBy<T> {
 
 		private final CharReader in;

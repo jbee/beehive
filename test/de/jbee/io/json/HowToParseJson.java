@@ -12,8 +12,8 @@ import de.jbee.io.CharIO;
 import de.jbee.io.CharReader;
 import de.jbee.io.CharScanner;
 import de.jbee.io.json.filter.JsonFilter;
-import de.jbee.io.property.ObjectSelector;
 import de.jbee.io.property.ObjectPath;
+import de.jbee.io.property.ObjectSelector;
 
 public class HowToParseJson {
 
@@ -40,19 +40,19 @@ public class HowToParseJson {
 	}
 
 	@Test
-	public void testTreeBuilder()
+	public void parseFromFileAndFilterDirectly()
 			throws FileNotFoundException {
 		CharReader in = CharIO.reader( new FileReader( "test/de/jbee/io/json/Test.json" ) );
 		CharScanner<JsonProcessor> parser = JsonParser.getInstance();
-		JsonTreeBuilder treeBuilder = JsonTreeBuilder.newInstance();
-		parser.scan( in, new JsonFilter( treeBuilder, new ObjectSelector() {
+		JsonTreeBuilder builder = JsonTreeBuilder.newInstance();
+		parser.scan( in, new JsonFilter( builder, new ObjectSelector() {
 
 			@Override
 			public boolean selects( ObjectPath path ) {
 				return !path.isSubElementOf( ObjectPath.path( "web-app.servlet.init-param" ) );
 			}
 		} ) );
-		Json value = treeBuilder.build();
+		Json value = builder.build();
 		System.out.println( value );
 	}
 

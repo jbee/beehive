@@ -1,22 +1,26 @@
 package de.jbee.io;
 
 import java.util.InputMismatchException;
+import java.util.regex.Pattern;
 
 public final class Collect {
 
-	private static final CharPredicate ANY_LETTER = new LetterCharPredicate();
-	private static final CharPredicate ANY_WHITESPACE = new WhitespaceCharPredicate();
+	private static final CharPredicate ASCII_LETTER = or( in( 'a', 'z' ), in( 'A', 'Z' ) );
+	private static final CharPredicate ASCII_DIGIT = in( '0', '9' );
+
+	private static final CharPredicate ANY_UNI_LETTER = new LetterCharPredicate();
+	private static final CharPredicate ANY_UNI_WHITESPACE = new WhitespaceCharPredicate();
 
 	private static final CharCollector UNI_STRING = new EscapedUnicodeStringCharCollector();
 
 	public static final CharCollector LINE = until( '\n' );
 	public static final CharCollector CDDATA = new CDATACharCollector();
-	public static final CharCollector UNI_DIGITS = is( type( Character.DECIMAL_DIGIT_NUMBER ) );
-	public static final CharCollector UNI_LETTERS = is( anyLetter() );
+	public static final CharCollector UNI_DIGITS = whileItIs( type( Character.DECIMAL_DIGIT_NUMBER ) );
+	public static final CharCollector UNI_LETTERS = whileItIs( anyLetter() );
 	public static final CharCollector UNTIL_UNI_WHITESPACE = until( anyWhitespace() );
 
-	public static final CharCollector ASCII_DIGITS = is( in( '0', '9' ) );
-	public static final CharCollector ASCII_LETTERS = is( or( in( 'a', 'z' ), in( 'A', 'Z' ) ) );
+	public static final CharCollector ASCII_DIGITS = whileItIs( ASCII_DIGIT );
+	public static final CharCollector ASCII_LETTERS = whileItIs( ASCII_LETTER );
 
 	public static CharCollector next( int n ) {
 		return new FixLengthCharCollector( n );
@@ -33,11 +37,11 @@ public final class Collect {
 	}
 
 	public static CharCollector until( char endExclusive ) {
-		return is( not( exact( endExclusive ) ) );
+		return until( exact( endExclusive ) );
 	}
 
 	public static CharCollector until( CharPredicate predicate ) {
-		return is( not( predicate ) );
+		return whileItIs( not( predicate ) );
 	}
 
 	public static CharCollector unicode() {
@@ -45,24 +49,32 @@ public final class Collect {
 	}
 
 	public static CharCollector letterOrIn( String charset ) {
-		return new WhileCharCollector( or( anyLetter(), in( charset ) ) );
+		return whileItIs( or( anyLetter(), in( charset ) ) );
 	}
 
 	public static CharCollector charset( String charset ) {
-		return is( in( charset ) );
+		return whileItIs( in( charset ) );
 	}
 
-	private static CharCollector is( CharPredicate predicate ) {
+	private static CharCollector whileItIs( CharPredicate predicate ) {
 		return new WhileCharCollector( predicate );
 	}
 
-	public static CharCollector eitherOr( CharPredicate whileIt, CharScanner<CharWriter> either,
+	public static CharCollector eitherOr( CharPredicate next, CharScanner<CharWriter> either,
 			CharScanner<CharWriter> or ) {
-		return new EitherOrCharCollector( whileIt, either, or );
+		return new EitherOrCharCollector( next, either, or );
 	}
 
 	public static CharPredicate exact( char exact ) {
 		return new ExactCharPredicate( exact );
+	}
+
+	public static CharPredicate matches( String regex ) {
+		return matches( Pattern.compile( regex ) );
+	}
+
+	public static CharPredicate matches( Pattern pattern ) {
+		return new PatternCharPredicate( pattern );
 	}
 
 	public static CharPredicate in( String charset ) {
@@ -97,11 +109,11 @@ public final class Collect {
 	}
 
 	public static CharPredicate anyLetter() {
-		return ANY_LETTER;
+		return ANY_UNI_LETTER;
 	}
 
 	public static CharPredicate anyWhitespace() {
-		return ANY_WHITESPACE;
+		return ANY_UNI_WHITESPACE;
 	}
 
 	private Collect() {
@@ -116,10 +128,14 @@ public final class Collect {
 		}
 
 		@Override
-		public boolean is( char c ) {
+		public boolean isSuitable( char c ) {
 			return Character.isWhitespace( c );
 		}
 
+		@Override
+		public String toString() {
+			return "{Whitespace}";
+		}
 	}
 
 	private static final class LetterCharPredicate
@@ -130,8 +146,13 @@ public final class Collect {
 		}
 
 		@Override
-		public boolean is( char c ) {
+		public boolean isSuitable( char c ) {
 			return Character.isLetter( c );
+		}
+
+		@Override
+		public String toString() {
+			return "{Letter}";
 		}
 
 	}
@@ -149,10 +170,14 @@ public final class Collect {
 		}
 
 		@Override
-		public boolean is( char c ) {
-			return left.is( c ) || right.is( c );
+		public boolean isSuitable( char c ) {
+			return left.isSuitable( c ) || right.isSuitable( c );
 		}
 
+		@Override
+		public String toString() {
+			return "(" + left + " || " + right + ")";
+		}
 	}
 
 	private static final class AndCharPredicate
@@ -168,10 +193,14 @@ public final class Collect {
 		}
 
 		@Override
-		public boolean is( char c ) {
-			return left.is( c ) && right.is( c );
+		public boolean isSuitable( char c ) {
+			return left.isSuitable( c ) && right.isSuitable( c );
 		}
 
+		@Override
+		public String toString() {
+			return "(" + left + " && " + right + ")";
+		}
 	}
 
 	private static final class NotCharPredicate
@@ -185,10 +214,14 @@ public final class Collect {
 		}
 
 		@Override
-		public boolean is( char c ) {
-			return !negated.is( c );
+		public boolean isSuitable( char c ) {
+			return !negated.isSuitable( c );
 		}
 
+		@Override
+		public String toString() {
+			return "!" + negated;
+		}
 	}
 
 	private static final class CharacterTypeCharPredicate
@@ -202,8 +235,13 @@ public final class Collect {
 		}
 
 		@Override
-		public boolean is( char c ) {
+		public boolean isSuitable( char c ) {
 			return Character.getType( c ) == type;
+		}
+
+		@Override
+		public String toString() {
+			return "{type:" + type + "}"; //TODO resolve readable name as given by http://unicode.org/Public/UNIDATA/NamesList.txt
 		}
 	}
 
@@ -220,10 +258,14 @@ public final class Collect {
 		}
 
 		@Override
-		public boolean is( char c ) {
+		public boolean isSuitable( char c ) {
 			return c >= lower && c <= upper;
 		}
 
+		@Override
+		public String toString() {
+			return lower + "-" + upper;
+		}
 	}
 
 	private static final class InCharsetCharPredicate
@@ -237,10 +279,14 @@ public final class Collect {
 		}
 
 		@Override
-		public boolean is( char c ) {
+		public boolean isSuitable( char c ) {
 			return charset.indexOf( c ) >= 0;
 		}
 
+		@Override
+		public String toString() {
+			return "[" + charset + "]";
+		}
 	}
 
 	private static final class ExactCharPredicate
@@ -254,8 +300,29 @@ public final class Collect {
 		}
 
 		@Override
-		public boolean is( char c ) {
+		public boolean isSuitable( char c ) {
 			return c == exact;
+		}
+
+		@Override
+		public String toString() {
+			return String.valueOf( exact );
+		}
+	}
+
+	private static final class PatternCharPredicate
+			implements CharPredicate {
+
+		private final Pattern pattern;
+
+		PatternCharPredicate( Pattern pattern ) {
+			super();
+			this.pattern = pattern;
+		}
+
+		@Override
+		public boolean isSuitable( char c ) {
+			return pattern.matcher( String.valueOf( c ) ).matches();
 		}
 
 	}
@@ -365,14 +432,14 @@ public final class Collect {
 	private static final class EitherOrCharCollector
 			implements CharCollector {
 
-		private final CharPredicate whileIt;
+		private final CharPredicate next;
 		private final CharScanner<CharWriter> either;
 		private final CharScanner<CharWriter> or;
 
-		EitherOrCharCollector( CharPredicate whileIt, CharScanner<CharWriter> either,
+		EitherOrCharCollector( CharPredicate next, CharScanner<CharWriter> either,
 				CharScanner<CharWriter> or ) {
 			super();
-			this.whileIt = whileIt;
+			this.next = next;
 			this.either = either;
 			this.or = or;
 		}
@@ -380,7 +447,7 @@ public final class Collect {
 		@Override
 		public void scan( CharReader in, CharWriter out ) {
 			if ( in.hasNext() ) {
-				if ( whileIt.is( in.peek() ) ) {
+				if ( next.isSuitable( in.peek() ) ) {
 					either.scan( in, out );
 				} else {
 					or.scan( in, out );
@@ -402,7 +469,7 @@ public final class Collect {
 
 		@Override
 		public void scan( CharReader in, CharWriter out ) {
-			while ( in.hasNext() && whileIt.is( in.peek() ) ) {
+			while ( in.hasNext() && whileIt.isSuitable( in.peek() ) ) {
 				out.append( in.next() );
 			}
 		}
