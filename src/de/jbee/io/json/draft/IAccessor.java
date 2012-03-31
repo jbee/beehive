@@ -1,4 +1,4 @@
-package de.jbee.io.property;
+package de.jbee.io.json.draft;
 
 public interface IAccessor<T> {
 

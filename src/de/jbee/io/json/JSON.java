@@ -6,6 +6,8 @@ import java.math.BigInteger;
 
 import de.jbee.io.CharIO;
 import de.jbee.io.CharReader;
+import de.jbee.io.ProcessableBy;
+import de.jbee.io.ProcessableBy.NoopDiscardingProcessableBy;
 
 /**
  * Util to work with JSON data.
@@ -14,7 +16,7 @@ import de.jbee.io.CharReader;
  */
 public final class JSON {
 
-	public static final String NUMBER_UNIVERSE = ".0123456789+-eE";
+	public static final String NUMBER_CHARSET = ".0123456789+-eE";
 
 	public static Json NULL = JsonNull.OBJECT;
 
@@ -103,6 +105,105 @@ public final class JSON {
 					return "\\u" + ss;
 				}
 				return String.valueOf( c );
+		}
+	}
+
+	private static final ProcessableBy<JsonProcessor> PROCESS_NULL = new ProcessJsonNull();
+
+	public static ProcessableBy<JsonProcessor> element( String value ) {
+		return value == null
+			? PROCESS_NULL
+			: new ProcessJsonString( value );
+	}
+
+	public static ProcessableBy<JsonProcessor> element( Number value ) {
+		return value == null
+			? PROCESS_NULL
+			: new ProcessJsonNumber( value );
+	}
+
+	public static ProcessableBy<JsonProcessor> element( Boolean value ) {
+		return value == null
+			? PROCESS_NULL
+			: new ProcessJsonBoolean( value );
+	}
+
+	public static void processAsElement( JsonProcessor processor, String name, String value ) {
+		processor.process( type( JsonType.STRING, value ), name, element( value ) );
+	}
+
+	public static void processAsElement( JsonProcessor processor, String name, Number value ) {
+		processor.process( type( JsonType.NUMBER, value ), name, element( value ) );
+	}
+
+	public static void processAsElement( JsonProcessor processor, String name, Boolean value ) {
+		processor.process( type( JsonType.BOOLEAN, value ), name, element( value ) );
+	}
+
+	private static JsonType type( JsonType type, Object value ) {
+		return value == null
+			? JsonType.NULL
+			: type;
+	}
+
+	private static final class ProcessJsonString
+			extends NoopDiscardingProcessableBy<JsonProcessor> {
+
+		private final String value;
+
+		ProcessJsonString( String value ) {
+			super();
+			this.value = value;
+		}
+
+		@Override
+		public void processBy( JsonProcessor processor ) {
+			processor.process( value );
+		}
+	}
+
+	private static final class ProcessJsonNumber
+			extends NoopDiscardingProcessableBy<JsonProcessor> {
+
+		private final Number value;
+
+		ProcessJsonNumber( Number value ) {
+			super();
+			this.value = value;
+		}
+
+		@Override
+		public void processBy( JsonProcessor processor ) {
+			processor.process( value );
+		}
+	}
+
+	private static final class ProcessJsonBoolean
+			extends NoopDiscardingProcessableBy<JsonProcessor> {
+
+		private final boolean value;
+
+		ProcessJsonBoolean( boolean value ) {
+			super();
+			this.value = value;
+		}
+
+		@Override
+		public void processBy( JsonProcessor processor ) {
+			processor.process( value );
+		}
+	}
+
+	private static final class ProcessJsonNull
+			extends NoopDiscardingProcessableBy<JsonProcessor> {
+
+		ProcessJsonNull() {
+			// make visible
+		}
+
+		@Override
+		public void processBy( JsonProcessor processor ) {
+			processor.processNull();
 		}
 	}
 }

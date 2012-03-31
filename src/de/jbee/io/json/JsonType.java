@@ -7,17 +7,18 @@ import de.jbee.io.CharReader;
 import de.jbee.io.CharScanner;
 import de.jbee.io.Collect;
 import de.jbee.io.Gobble;
+import de.jbee.io.ScanTo;
 
 public enum JsonType
 		implements CharScanner<JsonProcessor>, CharProcessor {
 
 	NULL( "n", new JsonNullScanner(), Gobble.letters() ),
 	BOOLEAN( "tf", new JsonBooleanScanner(), Gobble.letters() ),
-	NUMBER( "-0123456789", new JsonNumberScanner(), Gobble.universe( JSON.NUMBER_UNIVERSE ) ),
+	NUMBER( "-0123456789", new JsonNumberScanner(), Gobble.universe( JSON.NUMBER_CHARSET ) ),
 	STRING( "\"'", new JsonStringScanner(), Gobble.unicode() ),
-	ARRAY( "[", Collect.list( '[', JsonParser.getInstance(), ',', ']' ), Gobble.block( "[{", "}]",
+	ARRAY( "[", ScanTo.list( '[', JsonParser.getInstance(), ',', ']' ), Gobble.block( "[{", "}]",
 			"'\"", Gobble.unicode() ) ),
-	OBJECT( "{", Collect.list( '{', new JsonMemberScanner(), ',', '}' ), Gobble.block( "{[", "]}",
+	OBJECT( "{", ScanTo.list( '{', new JsonMemberScanner(), ',', '}' ), Gobble.block( "{[", "]}",
 			"'\"", Gobble.unicode() ) );
 
 	private static final int OPENER_OFFSET = '"';
@@ -74,22 +75,30 @@ public enum JsonType
 		gobbler.process( in );
 	}
 
-	static final class JsonMemberScanner
+	private static final class JsonMemberScanner
 			implements CharScanner<JsonProcessor> {
+
+		JsonMemberScanner() {
+			// make visible
+		}
 
 		@Override
 		public void scan( CharReader in, JsonProcessor out ) {
 			Gobble.whitespace().process( in );
-			String name = Collect.toString( in, Collect.universeBranch( "\"'", Collect.unicode(),
-					Collect.until( ':' ) ) );
+			String name = Collect.toString( in, Collect.branch( Collect.in( "\"'" ),
+					Collect.unicode(), Collect.until( ':' ) ) );
 			Gobble.aWhitespaced( ':' ).process( in );
 			JsonParser.yieldInstance( name ).scan( in, out );
 			Gobble.whitespace().process( in );
 		}
 	}
 
-	static final class JsonStringScanner
+	private static final class JsonStringScanner
 			implements CharScanner<JsonProcessor> {
+
+		JsonStringScanner() {
+			// make visible
+		}
 
 		@Override
 		public void scan( CharReader in, JsonProcessor out ) {
@@ -97,18 +106,26 @@ public enum JsonType
 		}
 	}
 
-	static final class JsonNumberScanner
+	private static final class JsonNumberScanner
 			implements CharScanner<JsonProcessor> {
+
+		JsonNumberScanner() {
+			// make visible
+		}
 
 		@Override
 		public void scan( CharReader in, JsonProcessor out ) {
 			out.process( JSON.parseNumber( Collect.toString( in,
-					Collect.universe( JSON.NUMBER_UNIVERSE ) ) ) );
+					Collect.charset( JSON.NUMBER_CHARSET ) ) ) );
 		}
 	}
 
-	static final class JsonNullScanner
+	private static final class JsonNullScanner
 			implements CharScanner<JsonProcessor> {
+
+		JsonNullScanner() {
+			// make visible
+		}
 
 		@Override
 		public void scan( CharReader in, JsonProcessor out ) {
@@ -117,8 +134,12 @@ public enum JsonType
 		}
 	}
 
-	static final class JsonBooleanScanner
+	private static final class JsonBooleanScanner
 			implements CharScanner<JsonProcessor> {
+
+		JsonBooleanScanner() {
+			// make visible
+		}
 
 		@Override
 		public void scan( CharReader in, JsonProcessor out ) {

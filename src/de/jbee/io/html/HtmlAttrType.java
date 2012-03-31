@@ -30,7 +30,7 @@ public enum HtmlAttrType
 			char c = in.peek();
 			while ( c != '/' && c != '>' ) {
 				final IHtmlAttr attr = out.dialect().attr(
-						Collect.toString( in, Collect.letterOrUniverse( "-" ) ) );
+						Collect.toString( in, Collect.letterOrIn( "-" ) ) );
 				Gobble.a( '=' ).process( in );
 				out.process( attr, ScanTo.processing( in, new HtmlAttributeScanner( attr ),
 						ScanTo.scansTo( Gobble.cDATA() ) ) );

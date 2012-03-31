@@ -12,8 +12,8 @@ import de.jbee.io.CharIO;
 import de.jbee.io.CharReader;
 import de.jbee.io.CharScanner;
 import de.jbee.io.json.filter.JsonFilter;
-import de.jbee.io.property.IPropertySelector;
-import de.jbee.io.property.PropertyPath;
+import de.jbee.io.property.ObjectSelector;
+import de.jbee.io.property.ObjectPath;
 
 public class HowToParseJson {
 
@@ -45,11 +45,11 @@ public class HowToParseJson {
 		CharReader in = CharIO.reader( new FileReader( "test/de/jbee/io/json/Test.json" ) );
 		CharScanner<JsonProcessor> parser = JsonParser.getInstance();
 		JsonTreeBuilder treeBuilder = JsonTreeBuilder.newInstance();
-		parser.scan( in, new JsonFilter( treeBuilder, new IPropertySelector() {
+		parser.scan( in, new JsonFilter( treeBuilder, new ObjectSelector() {
 
 			@Override
-			public boolean selects( PropertyPath path ) {
-				return !path.isSubElementOf( PropertyPath.of( "web-app.servlet.init-param" ) );
+			public boolean selects( ObjectPath path ) {
+				return !path.isSubElementOf( ObjectPath.path( "web-app.servlet.init-param" ) );
 			}
 		} ) );
 		Json value = treeBuilder.build();

@@ -84,7 +84,7 @@ public interface JsonInstructor<P> {
 
 		@Override
 		public JsonObjectInstructor<P> object() {
-			final JsonObjectInstructor<P> res = new JsonObjectInstructor<P>( parent );
+			final JsonObjectInstructor<P> res = new JsonObjectInstructor<P>( parent ); //TODO parent seamed to be wrong ?!
 			processor.process( JsonType.OBJECT, name, res );
 			return res;
 		}
@@ -97,19 +97,19 @@ public interface JsonInstructor<P> {
 
 		@Override
 		public P value( final String value ) {
-			JsonProcessable.processAsElement( processor, name, value );
+			JSON.processAsElement( processor, name, value );
 			return parent;
 		}
 
 		@Override
 		public P value( final Number value ) {
-			JsonProcessable.processAsElement( processor, name, value );
+			JSON.processAsElement( processor, name, value );
 			return parent;
 		}
 
 		@Override
 		public P value( final Boolean value ) {
-			JsonProcessable.processAsElement( processor, name, value );
+			JSON.processAsElement( processor, name, value );
 			return parent;
 		}
 

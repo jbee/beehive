@@ -3,21 +3,21 @@ package de.jbee.io.json.filter;
 import de.jbee.io.ProcessableBy;
 import de.jbee.io.json.JsonProcessor;
 import de.jbee.io.json.JsonType;
-import de.jbee.io.property.IPropertySelector;
-import de.jbee.io.property.PropertyPath;
+import de.jbee.io.property.ObjectSelector;
+import de.jbee.io.property.ObjectPath;
 
 public class JsonFilter
 		implements JsonProcessor {
 
 	private final JsonProcessor processor;
-	private final IPropertySelector selector;
-	private final PropertyPath path;
+	private final ObjectSelector selector;
+	private final ObjectPath path;
 
-	public JsonFilter( JsonProcessor processor, IPropertySelector selector ) {
-		this( processor, selector, PropertyPath.NONE );
+	public JsonFilter( JsonProcessor processor, ObjectSelector selector ) {
+		this( processor, selector, ObjectPath.NONE );
 	}
 
-	JsonFilter( JsonProcessor processor, IPropertySelector selector, PropertyPath path ) {
+	JsonFilter( JsonProcessor processor, ObjectSelector selector, ObjectPath path ) {
 		super();
 		this.processor = processor;
 		this.selector = selector;
@@ -26,7 +26,7 @@ public class JsonFilter
 
 	@Override
 	public void process( JsonType type, String name, final ProcessableBy<JsonProcessor> element ) {
-		final PropertyPath memberPath = path.child( name );
+		final ObjectPath memberPath = path.child( name );
 		if ( !selector.selects( memberPath ) ) {
 			element.discardBy( processor );
 			return;

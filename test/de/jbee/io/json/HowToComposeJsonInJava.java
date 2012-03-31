@@ -1,19 +1,33 @@
 package de.jbee.io.json;
 
-import de.jbee.io.json.JsonTreeBuilder;
+import org.junit.Test;
+
+import de.jbee.io.json.JsonInstructor.JsonArrayInstructor;
 import de.jbee.io.json.JsonInstructor.JsonMemberInstructor;
 
-public class TestJsonInstructor {
+/**
+ * A tests that demonstrates how {@link Json} can be composed ad hoc in java.
+ * 
+ * @author Jan Bernitt (jan.bernitt@gmx.de)
+ */
+public class HowToComposeJsonInJava {
 
-	public static void main( String[] args ) {
+	@Test
+	public void composeToJson() {
 		JsonTreeBuilder builder = JsonTreeBuilder.newInstance();
 		JsonMemberInstructor<Void> root = JsonMemberInstructor.instruct( builder );
-		root.array().value( false ).array().values( 1, 2, 3 ).endArray().endArray();
+		JsonArrayInstructor<JsonArrayInstructor<Void>> array = root.array().value( false ).array();
+		array.value( 1 ).values( 1, 2, 3 ).endArray().endArray();
 		System.out.println( builder.build() );
-
+		root.array().value( true );
+		System.out.println( builder.build() );
 	}
 
-	private static void testRest( JsonTreeBuilder builder, JsonMemberInstructor<Void> root ) {
+	@Test
+	public void tesMisc() {
+		JsonTreeBuilder builder = JsonTreeBuilder.newInstance();
+		JsonMemberInstructor<Void> root = JsonMemberInstructor.instruct( builder );
+
 		root.object().member( "parsed" ).parse( "[3,4,{'foo':'bar'}, false, null, [[1,3],[3,6]]]" ).endObject();
 		System.out.println( builder.build() );
 		root.object().member( "bla" ).object().member( "bla" ).value( 4 ).endObject().endObject();

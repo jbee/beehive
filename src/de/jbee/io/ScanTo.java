@@ -8,11 +8,11 @@ public final class ScanTo {
 	}
 
 	public static CharScanner<Object> scansTo( CharProcessor out ) {
-		return new ProcessorVoidAdapter( out );
+		return new ProcessorCharScanner( out );
 	}
 
 	public static CharScanner<Appendable> appending( CharScanner<CharWriter> scanner ) {
-		return new AppendableAdapter( scanner );
+		return new AppendableCharScanner( scanner );
 	}
 
 	public static <T> CharScanner<T> successively( CharProcessor open, CharScanner<T> content,
@@ -22,11 +22,16 @@ public final class ScanTo {
 
 	public static <T> ProcessableBy<T> processing( CharReader in,
 			CharScanner<? super T> processing, CharScanner<? super T> discarding ) {
-		return new ElementAdapter<T>( in, processing, discarding );
+		return new ProcessableCharScanner<T>( in, processing, discarding );
 	}
 
 	public static <T> CharScanner<T> trimming( CharScanner<T> scanner ) {
-		return new TrimmingScanner<T>( scanner );
+		return new TrimmingCharScanner<T>( scanner );
+	}
+
+	public static <T> CharScanner<T> list( char open, CharScanner<T> element, char separator,
+			char close ) {
+		return new ListCharScanner<T>( open, element, separator, close );
 	}
 
 	private ScanTo() {
@@ -46,12 +51,45 @@ public final class ScanTo {
 		abstract void assemble(); //OPEN somehow offer a way to assemble the scanner in concrete classes - maybe this is also more a factory ? than we impl. that factory instead of a scanner class because that could be achieved by assembling others.
 	}
 
-	static final class AppendableAdapter
+	private static final class ListCharScanner<T>
+			implements CharScanner<T> {
+
+		private final char open;
+		private final CharScanner<T> element;
+		private final char separator;
+		private final char close;
+
+		ListCharScanner( char open, CharScanner<T> element, char separator, char close ) {
+			super();
+			this.open = open;
+			this.element = element;
+			this.separator = separator;
+			this.close = close;
+		}
+
+		public void scan( CharReader in, T out ) {
+			Gobble.a( open ).process( in );
+			if ( in.peek() != close ) {
+				scanElement( in, out );
+			}
+			Gobble.a( close ).process( in );
+		}
+
+		private void scanElement( CharReader in, T out ) {
+			element.scan( in, out );
+			if ( in.peek() == separator ) {
+				Gobble.a( separator ).process( in );
+				scanElement( in, out );
+			}
+		}
+	}
+
+	private static final class AppendableCharScanner
 			implements CharScanner<Appendable> {
 
 		private final CharScanner<CharWriter> scanner;
 
-		AppendableAdapter( CharScanner<CharWriter> scanner ) {
+		AppendableCharScanner( CharScanner<CharWriter> scanner ) {
 			super();
 			this.scanner = scanner;
 		}
@@ -62,12 +100,12 @@ public final class ScanTo {
 		}
 	}
 
-	static final class TrimmingScanner<T>
+	static final class TrimmingCharScanner<T>
 			implements CharScanner<T> {
 
 		private final CharScanner<T> scanner;
 
-		TrimmingScanner( CharScanner<T> scanner ) {
+		TrimmingCharScanner( CharScanner<T> scanner ) {
 			super();
 			this.scanner = scanner;
 		}
@@ -99,12 +137,12 @@ public final class ScanTo {
 		}
 	}
 
-	static final class ProcessorVoidAdapter
+	static final class ProcessorCharScanner
 			implements CharScanner<Object> {
 
 		private final CharProcessor out;
 
-		ProcessorVoidAdapter( CharProcessor out ) {
+		ProcessorCharScanner( CharProcessor out ) {
 			super();
 			this.out = out;
 		}
@@ -115,14 +153,14 @@ public final class ScanTo {
 		}
 	}
 
-	static final class ElementAdapter<T>
+	static final class ProcessableCharScanner<T>
 			implements ProcessableBy<T> {
 
 		private final CharReader in;
 		private final CharScanner<? super T> processing;
 		private final CharScanner<? super T> discarding;
 
-		ElementAdapter( CharReader in, CharScanner<? super T> processing,
+		ProcessableCharScanner( CharReader in, CharScanner<? super T> processing,
 				CharScanner<? super T> discarding ) {
 			super();
 			this.in = in;

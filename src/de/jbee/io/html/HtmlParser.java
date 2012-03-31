@@ -18,7 +18,7 @@ public class HtmlParser
 		if ( in.peek() == '!' ) {
 			// TODO comment or doctype
 		}
-		IHtmlTag tag = out.dialect().tag( Collect.toString( in, Collect.LETTERS ) );
+		IHtmlTag tag = out.dialect().tag( Collect.toString( in, Collect.UNI_LETTERS ) );
 		out.process( tag, ScanTo.processing( in, tag, ScanTo.scansTo( tag ) ) );
 	}
 
