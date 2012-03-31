@@ -85,7 +85,7 @@ public enum JsonType
 		@Override
 		public void scan( CharReader in, JsonProcessor out ) {
 			Gobble.whitespace().process( in );
-			String name = Collect.toString( in, Collect.branch( Collect.in( "\"'" ),
+			String name = Collect.toString( in, Collect.eitherOr( Collect.in( "\"'" ),
 					Collect.unicode(), Collect.until( ':' ) ) );
 			Gobble.aWhitespaced( ':' ).process( in );
 			JsonParser.yieldInstance( name ).scan( in, out );

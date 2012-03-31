@@ -13,6 +13,8 @@ import de.jbee.io.CharProcess.ExpectingCharProcessor;
  */
 public final class Gobble {
 
+	//TODO use CharPredicate instead of fix conditions
+
 	private static final CharProcessor NOTHING = CharProcess.NULL_OBJECT;
 	private static final CharProcessor NEXT_1 = new GobbleN( 1 );
 	private static final CharProcessor WHITESPACE = new GobbleWhitespace();

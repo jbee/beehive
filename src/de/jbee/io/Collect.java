@@ -7,10 +7,10 @@ public final class Collect {
 	private static final CharPredicate ANY_LETTER = new LetterCharPredicate();
 	private static final CharPredicate ANY_WHITESPACE = new WhitespaceCharPredicate();
 
-	private static final CharCollector UNI_STRING = new CollectEscapedUnicodeString();
+	private static final CharCollector UNI_STRING = new EscapedUnicodeStringCharCollector();
 
 	public static final CharCollector LINE = until( '\n' );
-	public static final CharCollector CDDATA = new CollectCDATA();
+	public static final CharCollector CDDATA = new CDATACharCollector();
 	public static final CharCollector UNI_DIGITS = is( type( Character.DECIMAL_DIGIT_NUMBER ) );
 	public static final CharCollector UNI_LETTERS = is( anyLetter() );
 	public static final CharCollector UNTIL_UNI_WHITESPACE = until( anyWhitespace() );
@@ -19,7 +19,7 @@ public final class Collect {
 	public static final CharCollector ASCII_LETTERS = is( or( in( 'a', 'z' ), in( 'A', 'Z' ) ) );
 
 	public static CharCollector next( int n ) {
-		return new ReadN( n );
+		return new FixLengthCharCollector( n );
 	}
 
 	public static void toBuffer( CharReader in, StringBuilder out, CharScanner<CharWriter> scanner ) {
@@ -45,7 +45,7 @@ public final class Collect {
 	}
 
 	public static CharCollector letterOrIn( String charset ) {
-		return new PredicateCharCollector( or( anyLetter(), in( charset ) ) );
+		return new WhileCharCollector( or( anyLetter(), in( charset ) ) );
 	}
 
 	public static CharCollector charset( String charset ) {
@@ -53,12 +53,12 @@ public final class Collect {
 	}
 
 	private static CharCollector is( CharPredicate predicate ) {
-		return new PredicateCharCollector( predicate );
+		return new WhileCharCollector( predicate );
 	}
 
-	public static CharCollector branch( CharPredicate predicate, CharScanner<CharWriter> main,
-			CharScanner<CharWriter> branch ) {
-		return new BranchCharCollector( predicate, main, branch );
+	public static CharCollector eitherOr( CharPredicate whileIt, CharScanner<CharWriter> either,
+			CharScanner<CharWriter> or ) {
+		return new EitherOrCharCollector( whileIt, either, or );
 	}
 
 	public static CharPredicate exact( char exact ) {
@@ -260,10 +260,10 @@ public final class Collect {
 
 	}
 
-	private static final class CollectCDATA
+	private static final class CDATACharCollector
 			implements CharCollector {
 
-		CollectCDATA() {
+		CDATACharCollector() {
 			//make visible
 		}
 
@@ -280,10 +280,10 @@ public final class Collect {
 		}
 	}
 
-	private static final class CollectEscapedUnicodeString
+	private static final class EscapedUnicodeStringCharCollector
 			implements CharCollector {
 
-		CollectEscapedUnicodeString() {
+		EscapedUnicodeStringCharCollector() {
 			// make visible
 		}
 
@@ -344,12 +344,12 @@ public final class Collect {
 		}
 	}
 
-	private static final class ReadN
+	private static final class FixLengthCharCollector
 			implements CharCollector {
 
 		private final int n;
 
-		ReadN( int n ) {
+		FixLengthCharCollector( int n ) {
 			super();
 			this.n = n;
 		}
@@ -362,47 +362,47 @@ public final class Collect {
 		}
 	}
 
-	private static final class BranchCharCollector
+	private static final class EitherOrCharCollector
 			implements CharCollector {
 
-		private final CharPredicate predicate;
-		private final CharScanner<CharWriter> main;
-		private final CharScanner<CharWriter> branch;
+		private final CharPredicate whileIt;
+		private final CharScanner<CharWriter> either;
+		private final CharScanner<CharWriter> or;
 
-		BranchCharCollector( CharPredicate predicate, CharScanner<CharWriter> main,
-				CharScanner<CharWriter> branch ) {
+		EitherOrCharCollector( CharPredicate whileIt, CharScanner<CharWriter> either,
+				CharScanner<CharWriter> or ) {
 			super();
-			this.predicate = predicate;
-			this.main = main;
-			this.branch = branch;
+			this.whileIt = whileIt;
+			this.either = either;
+			this.or = or;
 		}
 
 		@Override
 		public void scan( CharReader in, CharWriter out ) {
 			if ( in.hasNext() ) {
-				if ( predicate.is( in.peek() ) ) {
-					main.scan( in, out );
+				if ( whileIt.is( in.peek() ) ) {
+					either.scan( in, out );
 				} else {
-					branch.scan( in, out );
+					or.scan( in, out );
 				}
 			}
 		}
 
 	}
 
-	private static final class PredicateCharCollector
+	private static final class WhileCharCollector
 			implements CharCollector {
 
-		private final CharPredicate predicate;
+		private final CharPredicate whileIt;
 
-		PredicateCharCollector( CharPredicate predicate ) {
+		WhileCharCollector( CharPredicate whileIt ) {
 			super();
-			this.predicate = predicate;
+			this.whileIt = whileIt;
 		}
 
 		@Override
 		public void scan( CharReader in, CharWriter out ) {
-			while ( in.hasNext() && predicate.is( in.peek() ) ) {
+			while ( in.hasNext() && whileIt.is( in.peek() ) ) {
 				out.append( in.next() );
 			}
 		}
