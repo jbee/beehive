@@ -8,7 +8,7 @@ import de.jbee.io.ProcessableBy;
 import de.jbee.io.html.IHtmlTag;
 
 public enum XmlMarkupType
-		implements CharScanner<IXmlProcessor>, CharProcessor, ProcessableBy<IXmlProcessor> {
+		implements CharScanner<XmlProcessor>, CharProcessor, ProcessableBy<XmlProcessor> {
 
 	XML_DECLARATION(),
 	PROCESSING_INSTRUCTION,
@@ -28,20 +28,20 @@ public enum XmlMarkupType
 	DOCTYPE_DECLARATION(),
 	COMMENT(), ;
 
-	private final CharScanner<? super IXmlProcessor> scanner;
+	private final CharScanner<? super XmlProcessor> scanner;
 
 	private XmlMarkupType() {
 		this.scanner = null;
 	}
 
 	@Override
-	public void discardBy( IXmlProcessor processor ) {
+	public void discardBy( XmlProcessor processor ) {
 		// TODO Auto-generated method stub
 
 	}
 
 	@Override
-	public void processBy( IXmlProcessor processor ) {
+	public void processBy( XmlProcessor processor ) {
 		// TODO Auto-generated method stub
 
 	}
@@ -50,15 +50,15 @@ public enum XmlMarkupType
 		return this != CONTENT;
 	}
 
-	public void scan( CharReader in, IXmlProcessor out ) {
+	public void scan( CharReader in, XmlProcessor out ) {
 		scanner.scan( in, out );
 	}
 
 	static class XmlDoctypeScanner
-			implements CharScanner<IXmlProcessor> {
+			implements CharScanner<XmlProcessor> {
 
 		@Override
-		public void scan( CharReader in, IXmlProcessor out ) {
+		public void scan( CharReader in, XmlProcessor out ) {
 			Gobble.just( "<!DOCTYPE" ).process( in );
 			Gobble.whitespace().process( in );
 		}
@@ -66,7 +66,7 @@ public enum XmlMarkupType
 	}
 
 	static class XmlTagScanner
-			implements CharScanner<IXmlProcessor> {
+			implements CharScanner<XmlProcessor> {
 
 		private final IHtmlTag tag;
 
@@ -76,7 +76,7 @@ public enum XmlMarkupType
 		}
 
 		@Override
-		public final void scan( CharReader in, IXmlProcessor out ) {
+		public final void scan( CharReader in, XmlProcessor out ) {
 
 		}
 

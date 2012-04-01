@@ -8,6 +8,7 @@ import static de.jbee.io.CharIs.exact;
 import static de.jbee.io.CharIs.in;
 import static de.jbee.io.CharIs.not;
 import static de.jbee.io.CharIs.or;
+import static de.jbee.io.CharIs.type;
 
 import java.util.InputMismatchException;
 
@@ -15,11 +16,11 @@ public final class Collect {
 
 	private static final CharCollector UNI_STRING = new EscapedUnicodeStringCharCollector();
 
-	public static final CharCollector LINE = until( '\n' );
-	public static final CharCollector CDATA = new CDATACharCollector();
-	public static final CharCollector UNI_DIGITS = whileItIs( CharIs.type( Character.DECIMAL_DIGIT_NUMBER ) );
-	public static final CharCollector UNI_LETTERS = whileItIs( anyLetter() );
-	public static final CharCollector UNTIL_UNI_WHITESPACE = until( anyWhitespace() );
+	private static final CharCollector LINE = until( '\n' );
+	private static final CharCollector CDATA = new CDATACharCollector();
+	private static final CharCollector UNI_DIGITS = whileItIs( type( Character.DECIMAL_DIGIT_NUMBER ) );
+	private static final CharCollector UNI_LETTERS = whileItIs( anyLetter() );
+	private static final CharCollector UNTIL_UNI_WHITESPACE = until( anyWhitespace() );
 
 	public static final CharCollector ASCII_DIGITS = whileItIs( ASCII_DIGIT );
 	public static final CharCollector ASCII_LETTERS = whileItIs( ASCII_LETTER );
@@ -36,6 +37,14 @@ public final class Collect {
 		StringBuilder out = new StringBuilder();
 		toBuffer( in, out, scanner );
 		return out.toString();
+	}
+
+	public static CharCollector cDATA() {
+		return CDATA;
+	}
+
+	public static CharCollector letters() {
+		return UNI_LETTERS;
 	}
 
 	public static CharCollector until( char endExclusive ) {

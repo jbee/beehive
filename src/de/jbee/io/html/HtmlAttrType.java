@@ -1,10 +1,10 @@
 package de.jbee.io.html;
 
-import de.jbee.io.ScanTo;
-import de.jbee.io.Gobble;
 import de.jbee.io.CharReader;
 import de.jbee.io.CharScanner;
 import de.jbee.io.Collect;
+import de.jbee.io.Gobble;
+import de.jbee.io.ScanTo;
 
 public enum HtmlAttrType
 		implements CharScanner<IHtmlProcessor> {
@@ -52,7 +52,7 @@ public enum HtmlAttrType
 
 		@Override
 		public void scan( CharReader in, IHtmlProcessor out ) {
-			String value = Collect.toString( in, Collect.CDATA );
+			String value = Collect.toString( in, Collect.cDATA() );
 			out.process( attr, value );
 		}
 	}

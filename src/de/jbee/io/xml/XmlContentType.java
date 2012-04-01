@@ -1,5 +1,10 @@
 package de.jbee.io.xml;
 
+/**
+ * What kind of children are expected for a XML-element.
+ * 
+ * @author Jan Bernitt (jan.bernitt@gmx.de)
+ */
 public enum XmlContentType {
 
 	/**

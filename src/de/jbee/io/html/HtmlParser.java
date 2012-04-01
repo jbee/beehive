@@ -1,10 +1,10 @@
 package de.jbee.io.html;
 
-import de.jbee.io.ScanTo;
-import de.jbee.io.Gobble;
 import de.jbee.io.CharReader;
 import de.jbee.io.CharScanner;
 import de.jbee.io.Collect;
+import de.jbee.io.Gobble;
+import de.jbee.io.ScanTo;
 
 public class HtmlParser
 		implements CharScanner<IHtmlProcessor> {
@@ -18,7 +18,7 @@ public class HtmlParser
 		if ( in.peek() == '!' ) {
 			// TODO comment or doctype
 		}
-		IHtmlTag tag = out.dialect().tag( Collect.toString( in, Collect.UNI_LETTERS ) );
+		IHtmlTag tag = out.dialect().tag( Collect.toString( in, Collect.letters() ) );
 		out.process( tag, ScanTo.processing( in, tag, ScanTo.scansTo( tag ) ) );
 	}
 
