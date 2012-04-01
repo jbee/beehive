@@ -52,7 +52,7 @@ public enum HtmlAttrType
 
 		@Override
 		public void scan( CharReader in, IHtmlProcessor out ) {
-			String value = Collect.toString( in, Collect.CDDATA );
+			String value = Collect.toString( in, Collect.CDATA );
 			out.process( attr, value );
 		}
 	}

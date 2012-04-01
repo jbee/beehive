@@ -1,5 +1,7 @@
 package de.jbee.io.json;
 
+import static de.jbee.io.CharIs.in;
+
 import java.util.InputMismatchException;
 
 import de.jbee.io.CharProcessor;
@@ -85,8 +87,8 @@ public enum JsonType
 		@Override
 		public void scan( CharReader in, JsonProcessor out ) {
 			Gobble.whitespace().process( in );
-			String name = Collect.toString( in, Collect.eitherOr( Collect.in( "\"'" ),
-					Collect.unicode(), Collect.until( ':' ) ) );
+			String name = Collect.toString( in, Collect.eitherOr( in( "\"'" ), Collect.unicode(),
+					Collect.until( ':' ) ) );
 			Gobble.aWhitespaced( ':' ).process( in );
 			JsonParser.yieldInstance( name ).scan( in, out );
 			Gobble.whitespace().process( in );

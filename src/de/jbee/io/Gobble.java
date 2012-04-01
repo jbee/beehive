@@ -1,9 +1,10 @@
 package de.jbee.io;
 
-import static de.jbee.io.Collect.anyLetter;
-import static de.jbee.io.Collect.anyWhitespace;
-import static de.jbee.io.Collect.exact;
-import static de.jbee.io.Collect.not;
+import static de.jbee.io.CharIs.anyLetter;
+import static de.jbee.io.CharIs.anyWhitespace;
+import static de.jbee.io.CharIs.exact;
+import static de.jbee.io.CharIs.in;
+import static de.jbee.io.CharIs.not;
 
 import java.util.regex.Pattern;
 
@@ -17,8 +18,6 @@ import de.jbee.io.CharProcess.ExpectingCharProcessor;
  * @see CharProcess
  */
 public final class Gobble {
-
-	//TODO use CharPredicate instead of fix conditions
 
 	private static final CharProcessor NOTHING = CharProcess.NULL_OBJECT;
 	private static final CharProcessor NEXT_1 = new GobbleN( 1 );
@@ -87,7 +86,7 @@ public final class Gobble {
 	}
 
 	public static CharProcessor charset( String charset ) {
-		return whileItIs( Collect.in( charset ) );
+		return whileItIs( in( charset ) );
 	}
 
 	public static CharProcessor until( char end ) {
@@ -218,6 +217,7 @@ public final class Gobble {
 			char quote = in.peek();
 			if ( quote == '"' || quote == '\'' ) {
 				until( quote ).process( in );
+				Gobble.a( quote ).process( in );
 			} else {
 				untilWhitespace().process( in );
 			}
